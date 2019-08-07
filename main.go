@@ -5,14 +5,23 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 
 	"github.com/bwmarrin/discordgo"
 	_ "github.com/joho/godotenv/autoload"
 )
 
+var (
+	token     = os.Getenv("DISCORD_BOT_TOKEN")
+	rootUsers = parseRoot(os.Getenv("ROOT_USERS"))
+)
+
+func parseRoot(s string) []string {
+	return strings.Split(s, ",")
+}
+
 func main() {
-	token := os.Getenv("DISCORD_BOT_TOKEN")
 	discord, err := discordgo.New("Bot " + token)
 	if err != nil {
 		log.Fatalln(err)
@@ -32,32 +41,4 @@ func main() {
 	<-sc
 
 	discord.Close()
-}
-
-func findInUsers(ul []*discordgo.User, pred func(*discordgo.User) bool) *discordgo.User {
-	for _, u := range ul {
-		if pred(u) {
-			return u
-		}
-	}
-
-	return nil
-}
-
-func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
-	if s.State.User.ID == m.Author.ID {
-		return
-	}
-
-	if m.Author.Bot {
-		return
-	}
-
-	if findInUsers(m.Mentions, func(u *discordgo.User) bool {
-		return u.ID == s.State.User.ID
-	}) == nil {
-		return
-	}
-
-	s.ChannelMessageSend(m.ChannelID, `:beginner: Assign your roles here! https://roleypoly.com/s/`+m.GuildID)
 }
