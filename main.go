@@ -10,6 +10,9 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	_ "github.com/joho/godotenv/autoload"
+	micro "github.com/micro/go-micro"
+	"github.com/micro/go-micro/service/grpc"
+	proto "github.com/roleypoly/rpc/discord"
 )
 
 var (
@@ -34,7 +37,25 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	fmt.Println("Started roley3 discord.")
+	fmt.Println("roleypoly-discord: started bot")
+
+	service := grpc.NewService(
+		micro.Name("discord"),
+	)
+
+	service.Init()
+
+	discordService := &DiscordService{
+		Discord: discord,
+	}
+	proto.RegisterDiscordHandler(service.Server(), discordService)
+
+	go func() {
+		err := service.Run()
+		if err != nil {
+			log.Fatalf("roleypoly-discord: rpc service failed to start")
+		}
+	}()
 
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
