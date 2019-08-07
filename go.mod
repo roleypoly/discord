@@ -1,0 +1,48 @@
+module github.com/roleypoly/discord
+
+go 1.12
+
+require (
+	github.com/armon/go-metrics v0.0.0-20190430140413-ec5e00d3c878
+	github.com/bwmarrin/discordgo v0.19.0
+	github.com/go-log/log v0.1.0
+	github.com/golang/protobuf v1.3.2
+	github.com/google/btree v1.0.0
+	github.com/google/uuid v1.1.1
+	github.com/gorilla/websocket v1.4.0
+	github.com/hashicorp/consul v1.5.3
+	github.com/hashicorp/errwrap v1.0.0
+	github.com/hashicorp/go-cleanhttp v0.5.1
+	github.com/hashicorp/go-immutable-radix v1.1.0
+	github.com/hashicorp/go-msgpack v0.5.5
+	github.com/hashicorp/go-multierror v1.0.0
+	github.com/hashicorp/go-rootcerts v1.0.1
+	github.com/hashicorp/go-sockaddr v1.0.2
+	github.com/hashicorp/golang-lru v0.5.3
+	github.com/hashicorp/memberlist v0.1.4
+	github.com/hashicorp/serf v0.8.3
+	github.com/joho/godotenv v1.3.0
+	github.com/json-iterator/go v1.1.7
+	github.com/micro/cli v0.2.0
+	github.com/micro/go-micro v1.8.2
+	github.com/micro/mdns v0.2.0
+	github.com/miekg/dns v1.1.15
+	github.com/mitchellh/go-homedir v1.1.0
+	github.com/mitchellh/hashstructure v1.0.0
+	github.com/mitchellh/mapstructure v1.1.2
+	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd
+	github.com/modern-go/reflect2 v1.0.1
+	github.com/nats-io/nats.go v1.8.1
+	github.com/nats-io/nkeys v0.1.0
+	github.com/nats-io/nuid v1.0.1
+	github.com/petar/GoLLRB v0.0.0-20190514000832-33fb24c13b99
+	github.com/pkg/errors v0.8.1
+	github.com/roleypoly/rpc v0.0.0-20190807155910-a4f8da9fa638
+	github.com/sean-/seed v0.0.0-20170313163322-e2103e2c3529
+	golang.org/x/crypto v0.0.0-20190701094942-4def268fd1a4
+	golang.org/x/net v0.0.0-20190724013045-ca1201d0de80
+	golang.org/x/sys v0.0.0-20190804053845-51ab0e2deafa
+	golang.org/x/text v0.3.2
+	google.golang.org/genproto v0.0.0-20190801165951-fa694d86fc64
+	google.golang.org/grpc v1.22.1
+)
