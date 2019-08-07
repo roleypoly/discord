@@ -1,6 +1,7 @@
 package main // import "github.com/roleypoly/discord"
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -23,6 +24,8 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
+
+	fmt.Println("Started roley3 discord.")
 
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
