@@ -2,6 +2,7 @@ package text
 
 import (
 	"fmt"
+	"os"
 	"regexp"
 	"strings"
 
@@ -26,7 +27,13 @@ func TextResponder(s *discordgo.Session, m *discordgo.MessageCreate) {
 	msg := strings.Replace(m.Content, fmt.Sprintf(`<@%s>`, myID), "", 1)
 	msg = strings.Replace(m.Content, fmt.Sprintf(`<@!%s>`, myID), "", 1)
 
-	textResponder.FindAndExecute(msg, s, m)
+	if !textResponder.FindAndExecute(msg, s, m) {
+		SendDefaultResponse(s, m)
+	}
+}
+
+func SendDefaultResponse(s *discordgo.Session, m *discordgo.MessageCreate) {
+	s.ChannelMessageSend(m.ChannelID, `:beginner: Assign your roles here! `+os.Getenv("APP_URL")+`/s/`+m.GuildID)
 }
 
 func memberCountFromGuilds(gs []*discordgo.Guild) (count int) {

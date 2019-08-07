@@ -54,7 +54,7 @@ func handleText(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	if !idInList(rootUsers, m.Author.ID) {
-		s.ChannelMessageSend(m.ChannelID, `:beginner: Assign your roles here! https://roleypoly.com/s/`+m.GuildID)
+		text.SendDefaultResponse(s, m)
 	} else {
 		text.TextResponder(s, m)
 	}
