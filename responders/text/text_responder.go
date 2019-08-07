@@ -23,8 +23,8 @@ var textResponder = &responders.Responder{
 
 func TextResponder(s *discordgo.Session, m *discordgo.MessageCreate) {
 	myID := s.State.User.ID
-	msg := strings.Replace(m.Content, fmt.Sprintf(`<@$%s>`, myID), "", 1)
-	msg = strings.Replace(m.Content, fmt.Sprintf(`<@!$%s>`, myID), "", 1)
+	msg := strings.Replace(m.Content, fmt.Sprintf(`<@%s>`, myID), "", 1)
+	msg = strings.Replace(m.Content, fmt.Sprintf(`<@!%s>`, myID), "", 1)
 
 	textResponder.FindAndExecute(msg, s, m)
 }
