@@ -9,10 +9,10 @@ import (
 	"syscall"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/improbable-eng/grpc-web/go/grpcweb"
 	_ "github.com/joho/godotenv/autoload"
-	micro "github.com/micro/go-micro"
-	"github.com/micro/go-micro/service/grpc"
 	proto "github.com/roleypoly/rpc/discord"
+	"google.golang.org/grpc"
 )
 
 var (
@@ -39,27 +39,17 @@ func main() {
 
 	fmt.Println("roleypoly-discord: started bot")
 
-	service := grpc.NewService(
-		micro.Name("discord"),
-	)
-
-	service.Init()
-
-	discordService := &DiscordService{
+	grpcDiscord := &DiscordService{
 		Discord: discord,
 	}
-	proto.RegisterDiscordHandler(service.Server(), discordService)
 
-	go func() {
-		err := service.Run()
-		if err != nil {
-			log.Fatalf("roleypoly-discord: rpc service failed to start")
-		}
-	}()
+	grpcServer := grpc.NewServer()
+	wrappedGrpc := grpcweb.WrapServer(grpcServer)
+	proto.RegisterDiscordServer(grpcServer, grpcDiscord)
 
-	sc := make(chan os.Signal, 1)
-	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
-	<-sc
+	syscallExit := make(chan os.Signal, 1)
+	signal.Notify(syscallExit, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
+	<-syscallExit
 
 	discord.Close()
 }
