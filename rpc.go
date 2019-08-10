@@ -11,13 +11,18 @@ type DiscordService struct {
 	Discord *discordgo.Session
 }
 
-func (d *DiscordService) RootGetAllServers(ctx context.Context, req *pb.Empty, rsp *pb.ServerSlugPayload) error {
-	rsp.Servers = []*pb.ServerSlug{
-		{
-			Id:   "111",
-			Name: "test",
-		},
+func (d *DiscordService) ListServers(ctx context.Context, req *pb.Empty) (*pb.GuildList, error) {
+	guildlist := &pb.GuildList{}
+	for _, guild := range d.Discord.State.Guilds {
+		guildlist.Guilds = append(guildlist.Guilds, &pb.Guild{
+			ID:          guild.ID,
+			Name:        guild.Name,
+			Icon:        guild.Icon,
+			OwnerID:     guild.OwnerID,
+			MemberCount: int32(guild.MemberCount),
+			Splash:      guild.Splash,
+		})
 	}
 
-	return nil
+	return guildlist, nil
 }
