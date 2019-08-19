@@ -4,6 +4,7 @@ go 1.12
 
 require (
 	github.com/bwmarrin/discordgo v0.19.0
+	github.com/golang/protobuf v1.3.2
 	github.com/improbable-eng/grpc-web v0.11.0
 	github.com/joho/godotenv v1.3.0
 	github.com/micro/go-micro v1.8.3 // indirect
@@ -13,3 +14,5 @@ require (
 )
 
 replace github.com/roleypoly/gripkit => ../gripkit
+
+replace github.com/roleypoly/rpc => ../rpc

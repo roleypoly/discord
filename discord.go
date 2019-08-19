@@ -73,7 +73,7 @@ func startGripkit(discord *discordgo.Session) {
 		gripkit.WithGrpcWeb(
 			grpcweb.WithOriginFunc(func(o string) bool { return true }),
 		),
-		// gripkit.WithDebug(),
+		gripkit.WithDebug(),
 	)
 
 	proto.RegisterDiscordServer(gk.Server, grpcDiscord)
