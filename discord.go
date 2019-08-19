@@ -9,6 +9,7 @@ import (
 	"syscall"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/improbable-eng/grpc-web/go/grpcweb"
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/roleypoly/gripkit"
 	proto "github.com/roleypoly/rpc/discord"
@@ -69,7 +70,10 @@ func startGripkit(discord *discordgo.Session) {
 			TLSCertPath: os.Getenv("TLS_CERT_PATH"),
 			TLSKeyPath:  os.Getenv("TLS_KEY_PATH"),
 		}),
-		gripkit.WithGrpcWeb(),
+		gripkit.WithGrpcWeb(
+			grpcweb.WithOriginFunc(func(o string) bool { return true }),
+		),
+		// gripkit.WithDebug(),
 	)
 
 	proto.RegisterDiscordServer(gk.Server, grpcDiscord)
