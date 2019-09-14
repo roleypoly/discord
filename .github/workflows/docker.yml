@@ -1,0 +1,42 @@
+name: Docker CI & CD
+
+on:
+  push:
+    branches:
+      - master
+      - develop
+
+jobs:
+  build_publish:
+    name: Build and Public
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+
+      - name: Build
+        uses: actions/docker/cli@master
+        with:
+          args: build -t roleypoly/discord:${{ github.sha }}
+
+      - name: Login
+        uses: actions/docker/login@master
+        env:
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+
+      - name: Re-tag master
+        uses: actions/docker/tag@master
+        if: github.ref == 'refs/head/master'
+        with:
+          args: roleypoly/discord:${{ github.sha }} roleypoly/discord:latest
+
+      - name: Re-tag develop
+        uses: actions/docker/tag@master
+        if: github.ref == 'refs/head/develop'
+        with:
+          args: roleypoly/discord:${{ github.sha }} roleypoly/discord:next
+
+      - name: Push
+        uses: actions/docker/cli@master
+        with:
+          args: push roleypoly/discord:latest roleypoly/discord:next

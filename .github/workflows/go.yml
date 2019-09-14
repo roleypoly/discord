@@ -1,0 +1,21 @@
+name: Go CI
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    name: Go Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+
+      - name: Get Go
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.12.x
+
+      - name: Go Get
+        run: go get ./...
+
+      - name: Go Test
+        run: go test ./...
