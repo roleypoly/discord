@@ -1,0 +1,98 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: roleypoly-discord
+  labels:
+    app: roleypoly-discord
+spec:
+  clusterIP: None
+  ports:
+    - port: 6777
+      name: roleypoly-discord
+  selector:
+    app: roleypoly-discord
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: roleypoly-discord
+  labels:
+    app: roleypoly-discord
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: roleypoly-discord
+  template:
+    metadata:
+      labels:
+        app: roleypoly-discord
+    spec:
+      containers:
+        - name: roleypoly-discord
+          image: roleypoly/discord
+          ports:
+            - containerPort: 6777
+          env:
+            # SETUP
+            - name: BOT_HANDLE
+              value: "roleypoly#3711"
+            - name: DISCORD_SVC_PORT
+              value: ":6777"
+            - name: APP_URL
+              value: https://roleypoly.local:6780
+            # TLS
+            - name: TLS_CERT_PATH
+              value: /sec/tls.cert
+            - name: TLS_KEY_PATH
+              value: /sec/tls.key
+            # EPHEMERALS? audit if needed
+            - name: LOG_CHANNEL
+              value: "414541898074685441"
+            - name: ROOT_USERS
+              value: "62601275618889728"
+            # Secrets
+            - name: APP_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: roleypoly-secrets
+                  key: APP_KEY
+            - name: DISCORD_BOT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: roleypoly-secrets
+                  key: DISCORD_BOT_TOKEN
+            - name: DISCORD_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: roleypoly-secrets
+                  key: DISCORD_CLIENT_SECRET
+            - name: DISCORD_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: roleypoly-secrets
+                  key: DISCORD_CLIENT_ID
+            - name: SHARED_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: roleypoly-secrets
+                  key: SHARED_SECRET
+            - name: DB_URL
+              valueFrom:
+                secretKeyRef:
+                  name: roleypoly-secrets
+                  key: DB_URL
+          volumeMounts:
+            - name: secrets
+              mountPath: /sec/
+              readOnly: true
+      volumes:
+        - name: secrets
+          secret:
+            secretName: roleypoly-secrets
+            items:
+              - key: TLS_CERT
+                path: tls.cert
+              - key: TLS_KEY
+                path: tls.key

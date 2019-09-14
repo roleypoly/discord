@@ -28,6 +28,11 @@ func parseRoot(s string) []string {
 }
 
 func main() {
+
+	if token == "" {
+		log.Fatalln("DISCORD_BOT_TOKEN isn't set. Exiting.")
+	}
+
 	discord, err := discordgo.New("Bot " + token)
 	if err != nil {
 		log.Fatalln(err)
