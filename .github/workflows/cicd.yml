@@ -36,7 +36,7 @@ jobs:
     steps:
       - uses: actions/checkout@master
 
-      - name: Build
+      - name: Build & Tag
         uses: actions/docker/cli@master
         with:
           args: build . -t roleypoly/discord:${{ github.sha }} --build-arg GO_VERSION=1.13
@@ -47,26 +47,18 @@ jobs:
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
 
-      - name: Re-tag master to :latest
-        uses: actions/docker/tag@master
+      - name: Tag & Push master to :latest
+        uses: actions/docker/cli-multi@master
         if: github.ref == 'refs/heads/master'
         with:
-          args: roleypoly/discord:${{ github.sha }} roleypoly/discord:latest
+          args:
+            - tag roleypoly/discord:${{ github.sha }} roleypoly/discord:latest
+            - push roleypoly/discord:latest
 
-      - name: Push :latest
-        uses: actions/docker/cli@master
-        if: github.ref == 'refs/heads/master'
-        with:
-          args: push roleypoly/discord:latest
-
-      - name: Re-tag develop to :next
-        uses: actions/docker/tag@master
+      - name: Tag & Push develop to :next
+        uses: actions/docker/cli-multi@master
         if: github.ref == 'refs/heads/develop'
         with:
-          args: roleypoly/discord:${{ github.sha }} roleypoly/discord:next
-
-      - name: Push :next
-        uses: actions/docker/cli@master
-        if: github.ref == 'refs/heads/master'
-        with:
-          args: push roleypoly/discord:next
+          args:
+            - tag roleypoly/discord:${{ github.sha }} roleypoly/discord:next
+            - push roleypoly/discord:next
