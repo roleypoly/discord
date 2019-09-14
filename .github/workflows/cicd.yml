@@ -51,18 +51,16 @@ jobs:
         uses: actions/docker/cli-multi@master
         if: github.ref == 'refs/heads/master'
         with:
-          args:
-            [
-              "tag roleypoly/discord:${{ github.sha }} roleypoly/discord:latest",
-              "push roleypoly/discord:latest",
-            ]
+          args: '[
+            "tag roleypoly/discord:${{ github.sha }} roleypoly/discord:latest",
+            "push roleypoly/discord:latest"
+          ]'
 
       - name: Tag & Push develop to :next
         uses: actions/docker/cli-multi@master
         if: github.ref == 'refs/heads/develop'
         with:
-          args:
-            [
-              "tag roleypoly/discord:${{ github.sha }} roleypoly/discord:next",
-              "push roleypoly/discord:next",
-            ]
+          args: '[
+            "tag roleypoly/discord:${{ github.sha }} roleypoly/discord:next",
+            "push roleypoly/discord:next"
+          ]'
