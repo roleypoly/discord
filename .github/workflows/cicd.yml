@@ -1,14 +1,36 @@
-name: Docker CI & CD
+name: CI Workflow
 
-on:
-  push:
-    branches:
-      - master
-      - develop
+on: [push, pull_request]
 
 jobs:
+  go_test:
+    name: Go Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+
+      - name: Get Go
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.12.x
+
+      - name: Go Get
+        run: go get -v ./...
+        env:
+          GO111MODULES: on
+
+      - name: Go Build
+        run: go build -v ./...
+        env:
+          GO111MODULES: on
+
+      - name: Go Test
+        run: go test -v ./...
+        env:
+          GO111MODULES: on
+
   build_publish:
-    name: Build and Public
+    name: Build and Publish
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
