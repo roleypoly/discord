@@ -36,18 +36,15 @@ jobs:
     steps:
       - uses: actions/checkout@master
 
-      - name: Login
-        uses: actions/docker/login@master
-        env:
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-
       - name: Buildkit master to :latest
         uses: roleypoly/actions-buildkit@master
         if: github.ref == 'refs/heads/master'
         with:
           tag: roleypoly/discord:latest
           platforms: linux/amd64,linux/arm64,linux/arm/v6
+        env:
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
 
       - name: Buildkit develop to :next
         uses: roleypoly/actions-buildkit@master
@@ -55,3 +52,6 @@ jobs:
         with:
           tag: roleypoly/discord:next
           platforms: linux/amd64,linux/arm64,linux/arm/v6
+        env:
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
