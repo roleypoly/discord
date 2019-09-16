@@ -36,25 +36,22 @@ jobs:
     steps:
       - uses: actions/checkout@master
 
-      - name: Build & Tag
-        uses: actions/docker/cli@master
-        with:
-          args: build . -t roleypoly/discord:${{ github.sha }} --build-arg GO_VERSION=1.13
-
       - name: Login
         uses: actions/docker/login@master
         env:
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
 
-      - name: Tag & Push master to :latest
-        uses: actions/docker/cli-multi@master
+      - name: Buildkit master to :latest
+        uses: roleypoly/actions-buildkit@master
         if: github.ref == 'refs/heads/master'
         with:
-          args: '"tag roleypoly/discord:${{ github.sha }} roleypoly/discord:latest" "push roleypoly/discord:latest"'
+          tag: roleypoly/discord:latest
+          platforms: linux/amd64,linux/arm64,linux/arm/v6
 
-      - name: Tag & Push develop to :next
-        uses: actions/docker/cli-multi@master
+      - name: Buildkit develop to :next
+        uses: roleypoly/actions-buildkit@master
         if: github.ref == 'refs/heads/develop'
         with:
-          args: '"tag roleypoly/discord:${{ github.sha }} roleypoly/discord:next" "push roleypoly/discord:next"'
+          tag: roleypoly/discord:next
+          platforms: linux/amd64,linux/arm64,linux/arm/v6

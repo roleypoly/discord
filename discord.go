@@ -28,6 +28,7 @@ func parseRoot(s string) []string {
 }
 
 func main() {
+	log.Println("hello world")
 
 	if token == "" {
 		log.Fatalln("DISCORD_BOT_TOKEN isn't set. Exiting.")

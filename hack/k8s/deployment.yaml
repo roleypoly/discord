@@ -31,7 +31,7 @@ spec:
     spec:
       containers:
         - name: roleypoly-discord
-          image: roleypoly/discord
+          image: roleypoly/discord:bk-test
           ports:
             - containerPort: 6777
           env:
