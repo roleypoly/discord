@@ -11,7 +11,7 @@ import (
 
 // DiscordService is a gRPC implementation of rpc/discord.proto#Discord.
 type DiscordService struct {
-	// pb.UnimplementedDiscordServer
+	pb.UnimplementedDiscordServer
 	Discord *discordgo.Session
 }
 
@@ -83,7 +83,7 @@ func (d *DiscordService) GetUser(ctx context.Context, req *pb.IDQuery) (*pb.User
 	return msgbuilder.User(user), err
 }
 
-func (d *DiscordService) OwnUser(ctx context.Context, req *pb.IDQuery) (*pb.User, error) {
+func (d *DiscordService) OwnUser(ctx context.Context, req *empty.Empty) (*pb.User, error) {
 	user := d.Discord.State.User
 	return msgbuilder.User(user), nil
 }
