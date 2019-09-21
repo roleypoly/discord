@@ -16,7 +16,8 @@ This bot doesn't do much with commands, as it's mostly a utility for the backend
 - [x] bot: respond to mention (default case)
 - [x] dgo: command router
 - [x] pro: dockerize
-- [ ] pro: grpc
+- [x] pro: grpc
 - [x] bot: respond to command (admin case)
 - [ ] bot: dm auth challenge
 - [ ] dgo: sharding
+
