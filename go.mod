@@ -12,7 +12,7 @@ require (
 	github.com/roleypoly/rpc v0.0.0-20190921034711-ecdc7744d4c7
 	golang.org/x/text v0.3.2
 	google.golang.org/grpc v1.24.0
-	gopkg.in/yaml.v2 v2.2.4
+	gopkg.in/yaml.v2 v2.2.5
 )
 
 //replace github.com/roleypoly/gripkit => ../gripkit
