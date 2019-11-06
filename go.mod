@@ -11,7 +11,7 @@ require (
 	github.com/roleypoly/gripkit v0.0.0-20190819014327-7141453fff6a
 	github.com/roleypoly/rpc v0.0.0-20190921034711-ecdc7744d4c7
 	golang.org/x/text v0.3.2
-	google.golang.org/grpc v1.24.0
+	google.golang.org/grpc v1.25.0
 	gopkg.in/yaml.v2 v2.2.5
 )
 
