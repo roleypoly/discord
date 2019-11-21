@@ -38,7 +38,7 @@ COPY ./ ./
 # Build the executable to `/app`. Mark the build as statically linked.
 RUN CGO_ENABLED=0 go build \
   -installsuffix 'static' \
-  -o /app .
+  -o /app ./cmd/discord
 
 # Final stage: the running container.
 FROM scratch AS final
