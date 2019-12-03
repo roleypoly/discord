@@ -5,7 +5,7 @@ import (
 	"os"
 	"regexp"
 
-	discordgobot "github.com/roleypoly/discord/internal/discordclient"
+	discordgobot "github.com/lampjaw/discordclient"
 	"github.com/roleypoly/discord/internal/strings"
 )
 
@@ -20,9 +20,9 @@ type Listener struct {
 func (l *Listener) Run() {
 	l.readOnly = os.Getenv("READ_ONLY") == "1"
 
-	msgChan, err := l.Bot.Open()
+	msgChan, err := l.Bot.Listen(-1)
 	if err != nil {
-		log.Fatalln("err: Listener.Run, discord client open --", err)
+		log.Fatalln("err: Listener.Run, discord client listen --", err)
 		return
 	}
 

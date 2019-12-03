@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/golang/protobuf/ptypes/empty"
-	discordgobot "github.com/roleypoly/discord/internal/discordclient"
+	discordgobot "github.com/lampjaw/discordclient"
 	"github.com/roleypoly/discord/msgbuilder"
 	pb "github.com/roleypoly/rpc/discord"
 )

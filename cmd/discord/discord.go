@@ -8,8 +8,8 @@ import (
 
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
 	_ "github.com/joho/godotenv/autoload"
+	discordgobot "github.com/lampjaw/discordclient"
 	"github.com/roleypoly/discord/cmd/discord/run"
-	discordgobot "github.com/roleypoly/discord/internal/discordclient"
 	"github.com/roleypoly/discord/rpcserver"
 	"github.com/roleypoly/gripkit"
 	proto "github.com/roleypoly/rpc/discord"
@@ -40,12 +40,7 @@ func main() {
 }
 
 func setupBot() *discordgobot.DiscordClient {
-	args := []interface{}{("Bot " + discordConfig.BotToken)}
-	client := &discordgobot.DiscordClient{
-		Args:        args,
-		MessageChan: make(chan discordgobot.Message, 200),
-		OwnerUserID: "",
-	}
+	client := discordgobot.NewDiscordClient(discordConfig.BotToken, "", discordConfig.ClientID)
 
 	return client
 }
