@@ -4,7 +4,7 @@ go 1.13
 
 require (
 	github.com/bwmarrin/discordgo v0.20.1
-	github.com/golang/protobuf v1.3.2
+	github.com/golang/protobuf v1.3.3
 	github.com/gorilla/websocket v1.4.1 // indirect
 	github.com/improbable-eng/grpc-web v0.11.0
 	github.com/joho/godotenv v1.3.0
