@@ -7,7 +7,7 @@ require (
 	github.com/golang/protobuf v1.3.3
 	github.com/gorilla/websocket v1.4.1 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.0
-	github.com/improbable-eng/grpc-web v0.11.0
+	github.com/improbable-eng/grpc-web v0.12.0
 	github.com/joho/godotenv v1.3.0
 	github.com/lampjaw/discordclient v0.0.0-20191203024148-a457503e9888
 	github.com/mwitkow/go-conntrack v0.0.0-20190716064945-2f068394615f // indirect
