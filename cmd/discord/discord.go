@@ -1,11 +1,14 @@
 package main
 
 import (
+	"context"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
 
+	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
 	_ "github.com/joho/godotenv/autoload"
 	discordgobot "github.com/lampjaw/discordclient"
@@ -13,6 +16,9 @@ import (
 	"github.com/roleypoly/discord/rpcserver"
 	"github.com/roleypoly/gripkit"
 	proto "github.com/roleypoly/rpc/discord"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type discordEnvConfig struct {
@@ -27,7 +33,7 @@ var discordConfig = discordEnvConfig{
 	BotToken:     os.Getenv("DISCORD_BOT_TOKEN"),
 }
 
-var sharedSecret = os.Getenv("DISCORD_SHARED_SECRET")
+var sharedSecret = os.Getenv("SHARED_SECRET")
 var servicePort = os.Getenv("DISCORD_SVC_PORT")
 
 func main() {
@@ -45,6 +51,19 @@ func setupBot() *discordgobot.DiscordClient {
 	return client
 }
 
+func sharedSecretAuth(ctx context.Context) (context.Context, error) {
+	token, err := grpc_auth.AuthFromMD(ctx, "shared")
+	if err != nil {
+		return nil, err
+	}
+
+	if token != sharedSecret {
+		return nil, status.Error(codes.Unauthenticated, "invalid auth token")
+	}
+
+	return ctx, nil
+}
+
 func startGripkit(bot *discordgobot.DiscordClient) {
 	grpcDiscord := &rpcserver.DiscordService{
 		Discord: bot,
@@ -60,6 +79,11 @@ func startGripkit(bot *discordgobot.DiscordClient) {
 			grpcweb.WithOriginFunc(func(o string) bool { return true }),
 		),
 		gripkit.WithDebug(),
+		gripkit.WithOptions(grpc.UnaryInterceptor(
+			grpc_middleware.ChainUnaryServer(
+				grpc_auth.UnaryServerInterceptor(sharedSecretAuth),
+			),
+		)),
 	)
 
 	proto.RegisterDiscordServer(gk.Server, grpcDiscord)
