@@ -11,7 +11,7 @@ require (
 	github.com/lampjaw/discordclient v0.0.0-20191203024148-a457503e9888
 	github.com/mwitkow/go-conntrack v0.0.0-20190716064945-2f068394615f // indirect
 	github.com/roleypoly/gripkit v0.0.0-20190819014327-7141453fff6a
-	github.com/roleypoly/rpc v0.0.0-20190921034711-ecdc7744d4c7
+	github.com/roleypoly/rpc v1.5.0
 	github.com/stretchr/testify v1.4.0 // indirect
 	golang.org/x/crypto v0.0.0-20191029031824-8986dd9e96cf // indirect
 	golang.org/x/net v0.0.0-20190503192946-f4e77d36d62c // indirect

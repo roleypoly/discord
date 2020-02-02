@@ -38,6 +38,8 @@ github.com/roleypoly/gripkit v0.0.0-20190819014327-7141453fff6a h1:2FJUO9qBo9zBh
 github.com/roleypoly/gripkit v0.0.0-20190819014327-7141453fff6a/go.mod h1:c3fcB+xhOHi2gxQ5RTDMRyiBMWzntM3tHA55g9E0zf0=
 github.com/roleypoly/rpc v0.0.0-20190921034711-ecdc7744d4c7 h1:H1bY6DMimuk+cj5O1uEsmiQbINfPMUnvqqcH//CRCHc=
 github.com/roleypoly/rpc v0.0.0-20190921034711-ecdc7744d4c7/go.mod h1:FG1IODIUUs67+afivRw2DFzYjtQOSRDNDzT5vwh/i70=
+github.com/roleypoly/rpc v1.5.0 h1:j9ReMaLO2Blfk/yF3hk7G2FKAj0yBVEf1NwshTKhz5E=
+github.com/roleypoly/rpc v1.5.0/go.mod h1:8J/JCPMsVBbC1wsnewpagBNeX/T41X1SZ3Z0drpzRSM=
 github.com/rs/cors v1.7.0 h1:+88SsELBHx5r+hZ8TCkggzSstaWNbDvThkVK8H6f9ik=
 github.com/rs/cors v1.7.0/go.mod h1:gFx+x8UowdsKA9AchylcLynDq+nNFfI8FkUZdN/jGCU=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=

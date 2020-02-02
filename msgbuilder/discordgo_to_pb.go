@@ -2,15 +2,16 @@ package msgbuilder
 
 import (
 	"github.com/bwmarrin/discordgo"
-	pb "github.com/roleypoly/rpc/discord"
+	pbDiscord "github.com/roleypoly/rpc/discord"
+	pbShared "github.com/roleypoly/rpc/shared"
 )
 
-func Guild(guild *discordgo.Guild) *pb.Guild {
+func Guild(guild *discordgo.Guild) *pbShared.Guild {
 	if guild == nil {
 		return nil
 	}
 
-	return &pb.Guild{
+	return &pbShared.Guild{
 		ID:          guild.ID,
 		Name:        guild.Name,
 		Icon:        guild.Icon,
@@ -20,12 +21,12 @@ func Guild(guild *discordgo.Guild) *pb.Guild {
 	}
 }
 
-func User(user *discordgo.User) *pb.User {
+func User(user *discordgo.User) *pbShared.DiscordUser {
 	if user == nil {
 		return nil
 	}
 
-	return &pb.User{
+	return &pbShared.DiscordUser{
 		ID:            user.ID,
 		Username:      user.Username,
 		Discriminator: user.Discriminator,
@@ -34,12 +35,12 @@ func User(user *discordgo.User) *pb.User {
 	}
 }
 
-func Member(member *discordgo.Member) *pb.Member {
+func Member(member *discordgo.Member) *pbDiscord.Member {
 	if member == nil {
 		return nil
 	}
 
-	return &pb.Member{
+	return &pbDiscord.Member{
 		GuildID: member.GuildID,
 		Roles:   member.Roles,
 		Nick:    member.Nick,
@@ -47,8 +48,8 @@ func Member(member *discordgo.Member) *pb.Member {
 	}
 }
 
-func Roles(roles []*discordgo.Role) []*pb.Role {
-	protoRoles := make([]*pb.Role, len(roles))
+func Roles(roles []*discordgo.Role) []*pbShared.Role {
+	protoRoles := make([]*pbShared.Role, len(roles))
 
 	for idx, role := range roles {
 		protoRoles[idx] = Role(role)
@@ -57,12 +58,12 @@ func Roles(roles []*discordgo.Role) []*pb.Role {
 	return protoRoles
 }
 
-func Role(role *discordgo.Role) *pb.Role {
+func Role(role *discordgo.Role) *pbShared.Role {
 	if role == nil {
 		return nil
 	}
 
-	return &pb.Role{
+	return &pbShared.Role{
 		ID:          role.ID,
 		Name:        role.Name,
 		Permissions: int64(role.Permissions),
