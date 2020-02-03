@@ -54,7 +54,7 @@ func (l *Listener) handleMessage(message discordgobot.Message) {
 		if l.selfMention.MatchString(raw) {
 			log.Println("raw", raw)
 			log.Printf("guildID -- `%s`\n", guildID)
-			response := strings.Render(strings.MentionResponse, strings.MentionResponseData{GuildID: guildID, AppURL: "https://localhost:3000"})
+			response := strings.Render(strings.MentionResponse, strings.MentionResponseData{GuildID: guildID, AppURL: os.Getenv("APP_URL")})
 
 			if !l.readOnly {
 				l.Bot.SendMessage(message.Channel(), response)
