@@ -3,8 +3,10 @@ package rpcserver
 import (
 	"context"
 
+	"github.com/bwmarrin/discordgo"
 	"github.com/golang/protobuf/ptypes/empty"
 	discordgobot "github.com/lampjaw/discordclient"
+	"github.com/roleypoly/discord/internal/permissions"
 	"github.com/roleypoly/discord/msgbuilder"
 	pbDiscord "github.com/roleypoly/rpc/discord"
 	pbShared "github.com/roleypoly/rpc/shared"
@@ -68,15 +70,52 @@ func (d *DiscordService) UpdateMember(ctx context.Context, req *pbDiscord.Member
 	return req, nil
 }
 
+func getRoleFromRoles(roleID string, roles []*discordgo.Role) *discordgo.Role {
+	for _, role := range roles {
+		if role.ID == roleID {
+			return role
+		}
+	}
+
+	return nil
+}
+
+func (d *DiscordService) calculateSafety(guild *discordgo.Guild, role *pbShared.Role) pbShared.Role_RoleSafety {
+	ownMember, err := d.Discord.GuildMember(d.Discord.UserID(), guild.ID)
+	if err != nil {
+		return pbShared.Role_higherThanBot
+	}
+
+	for _, roleID := range ownMember.Roles {
+		checkRole := getRoleFromRoles(roleID, guild.Roles)
+
+		if permissions.RoleHasPermission(checkRole, discordgo.PermissionAdministrator) || permissions.RoleHasPermission(checkRole, discordgo.PermissionManageRoles) {
+			return pbShared.Role_dangerousPermissions
+		}
+
+		if role.Position < int32(checkRole.Position) {
+			return pbShared.Role_higherThanBot
+		}
+	}
+
+	return pbShared.Role_safe
+}
+
 func (d *DiscordService) GetGuildRoles(ctx context.Context, req *pbShared.IDQuery) (*pbShared.GuildRoles, error) {
 	guild, err := d.Discord.Guild(req.GuildID)
 	if err != nil {
 		return nil, err
 	}
 
+	roles := msgbuilder.Roles(guild.Roles)
+
+	for _, role := range roles {
+		role.Safety = d.calculateSafety(guild, role)
+	}
+
 	return &pbShared.GuildRoles{
 		ID:    guild.ID,
-		Roles: msgbuilder.Roles(guild.Roles),
+		Roles: roles,
 	}, nil
 }
 
