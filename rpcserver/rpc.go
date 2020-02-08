@@ -81,21 +81,26 @@ func getRoleFromRoles(roleID string, roles []*discordgo.Role) *discordgo.Role {
 }
 
 func (d *DiscordService) calculateSafety(guild *discordgo.Guild, role *pbShared.Role) pbShared.Role_RoleSafety {
+	if permissions.ProtoRoleHasPermission(role, discordgo.PermissionManageRoles) || permissions.ProtoRoleHasPermission(role, discordgo.PermissionAdministrator) {
+		return pbShared.Role_dangerousPermissions
+	}
+
 	ownMember, err := d.Discord.GuildMember(d.Discord.UserID(), guild.ID)
 	if err != nil {
 		return pbShared.Role_higherThanBot
 	}
 
+	highestOwnRolePosition := 9999
 	for _, roleID := range ownMember.Roles {
 		checkRole := getRoleFromRoles(roleID, guild.Roles)
 
-		if permissions.RoleHasPermission(checkRole, discordgo.PermissionAdministrator) || permissions.RoleHasPermission(checkRole, discordgo.PermissionManageRoles) {
-			return pbShared.Role_dangerousPermissions
+		if checkRole.Position < highestOwnRolePosition {
+			highestOwnRolePosition = checkRole.Position
 		}
+	}
 
-		if role.Position < int32(checkRole.Position) {
-			return pbShared.Role_higherThanBot
-		}
+	if role.Position > int32(highestOwnRolePosition) {
+		return pbShared.Role_higherThanBot
 	}
 
 	return pbShared.Role_safe
