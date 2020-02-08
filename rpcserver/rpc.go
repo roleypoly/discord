@@ -92,11 +92,11 @@ func (d *DiscordService) calculateSafety(guild *discordgo.Guild, role *pbShared.
 		return pbShared.Role_higherThanBot
 	}
 
-	highestOwnRolePosition := 9999
+	highestOwnRolePosition := 0
 	for _, roleID := range ownMember.Roles {
 		checkRole := getRoleFromRoles(roleID, guild.Roles)
 
-		if checkRole.Position < highestOwnRolePosition {
+		if checkRole.Position > highestOwnRolePosition {
 			highestOwnRolePosition = checkRole.Position
 		}
 	}
