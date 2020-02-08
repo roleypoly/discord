@@ -10,6 +10,7 @@ import (
 	"github.com/roleypoly/discord/msgbuilder"
 	pbDiscord "github.com/roleypoly/rpc/discord"
 	pbShared "github.com/roleypoly/rpc/shared"
+	"k8s.io/klog"
 )
 
 // DiscordService is a gRPC implementation of rpc/discord.proto#Discord.
@@ -87,6 +88,7 @@ func (d *DiscordService) calculateSafety(guild *discordgo.Guild, role *pbShared.
 
 	ownMember, err := d.Discord.GuildMember(d.Discord.UserID(), guild.ID)
 	if err != nil {
+		klog.Error("ownMember is nil in", guild.ID)
 		return pbShared.Role_higherThanBot
 	}
 

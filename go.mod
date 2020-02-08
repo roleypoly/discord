@@ -6,7 +6,6 @@ require (
 	github.com/bwmarrin/discordgo v0.20.2
 	github.com/desertbit/timer v0.0.0-20180107155436-c41aec40b27f // indirect
 	github.com/golang/protobuf v1.3.3
-	github.com/gorilla/websocket v1.4.1 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.0
 	github.com/improbable-eng/grpc-web v0.12.0
 	github.com/joho/godotenv v1.3.0
@@ -14,14 +13,6 @@ require (
 	github.com/mwitkow/go-conntrack v0.0.0-20190716064945-2f068394615f // indirect
 	github.com/roleypoly/gripkit v0.0.0-20190819014327-7141453fff6a
 	github.com/roleypoly/rpc v1.5.0
-	golang.org/x/crypto v0.0.0-20191029031824-8986dd9e96cf // indirect
-	golang.org/x/net v0.0.0-20190503192946-f4e77d36d62c // indirect
-	golang.org/x/sys v0.0.0-20191029155521-f43be2a4598c // indirect
-	golang.org/x/text v0.3.2 // indirect
 	google.golang.org/grpc v1.27.1
-	gopkg.in/yaml.v2 v2.2.7 // indirect
+	k8s.io/klog v1.0.0
 )
-
-//replace github.com/roleypoly/gripkit => ../gripkit
-//replace github.com/roleypoly/rpc => ../rpc
-//replace github.com/lampjaw/discordgobot => ../../lampjaw/discordgobot
