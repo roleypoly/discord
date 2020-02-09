@@ -42,8 +42,8 @@ func main() {
 
 	klog.Infof(
 		"Starting discord service.\n Build %s (%s) at %s",
-		version.GitBranch,
 		version.GitCommit,
+		version.GitBranch,
 		version.BuildDate,
 	)
 
