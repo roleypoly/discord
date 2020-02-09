@@ -44,7 +44,7 @@ func main() {
 		"Starting discord service.\n Build %s (%s) at %s",
 		version.GitBranch,
 		version.GitCommit,
-		version.BuildTime,
+		version.BuildDate,
 	)
 
 	defer awaitExit()
