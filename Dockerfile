@@ -13,6 +13,10 @@ ENV GOPROXY ${GOPROXY}
 ENV GOOS ${TARGETOS}
 ENV GOARCH ${TARGETARCH}
 
+ARG GIT_COMMIT
+ARG GIT_BRANCH
+ARG BUILD_DATE
+
 # Create the user and group files that will be used in the running container to
 # run the process as an unprivileged user.
 RUN mkdir /user && \
@@ -37,7 +41,8 @@ COPY ./ ./
 
 # Build the executable to `/app`. Mark the build as statically linked.
 RUN CGO_ENABLED=0 go build \
-  -installsuffix 'static' \
+  -installsuffix "static" \
+  -ldflags "-X github.com/roleypoly/discord/internal/version.GitCommit=${GIT_COMMIT} -X github.com/roleypoly/discord/internal/version.GitBranch=${GIT_BRANCH} -X github.com/roleypoly/discord/internal/version.BuildDate=${BUILD_DATE}" \
   -o /app ./cmd/discord
 
 # Final stage: the running container.

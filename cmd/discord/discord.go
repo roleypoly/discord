@@ -2,9 +2,9 @@ package main
 
 import (
 	"context"
-	"log"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
@@ -13,12 +13,14 @@ import (
 	_ "github.com/joho/godotenv/autoload"
 	discordgobot "github.com/lampjaw/discordclient"
 	"github.com/roleypoly/discord/cmd/discord/run"
+	"github.com/roleypoly/discord/internal/version"
 	"github.com/roleypoly/discord/rpcserver"
 	"github.com/roleypoly/gripkit"
 	proto "github.com/roleypoly/rpc/discord"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"k8s.io/klog"
 )
 
 type discordEnvConfig struct {
@@ -37,6 +39,14 @@ var sharedSecret = os.Getenv("SHARED_SECRET")
 var servicePort = os.Getenv("DISCORD_SVC_PORT")
 
 func main() {
+
+	klog.Infof(
+		"Starting discord service.\n Build %s (%s) at %s",
+		version.GitBranch,
+		version.GitCommit,
+		version.BuildTime,
+	)
+
 	defer awaitExit()
 
 	bot := setupBot()
@@ -88,16 +98,17 @@ func startGripkit(bot *discordgobot.DiscordClient) {
 
 	proto.RegisterDiscordServer(gk.Server, grpcDiscord)
 
-	log.Println("gRPC server running")
+	klog.Info("gRPC server running on", os.Getenv("DISCORD_SVC_PORT"))
 	err := gk.Serve()
 	if err != nil {
-		log.Fatalln("grpc server failed to start", err)
+		klog.Exit("gRPC server failed to start.", err)
 	}
 }
 
 func startListener(bot *discordgobot.DiscordClient) {
 	listener := &run.Listener{
-		Bot: bot,
+		Bot:       bot,
+		RootUsers: strings.Split(os.Getenv("ROOT_USERS"), ","),
 	}
 
 	listener.Run()
