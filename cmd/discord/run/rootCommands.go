@@ -1,10 +1,11 @@
 package run
 
 import (
+	"fmt"
 	"regexp"
 
 	"github.com/lampjaw/discordclient"
-	"github.com/roleypoly/discord/internal/strings"
+	stringrenderer "github.com/roleypoly/discord/internal/strings"
 	"github.com/roleypoly/discord/internal/version"
 )
 
@@ -17,6 +18,10 @@ var rootCommands []Command = []Command{
 	{
 		Match: regexp.MustCompile("stats$"),
 		Fn:    rootStats,
+	},
+	{
+		Match: regexp.MustCompile("shard of [0-9]+$"),
+		Fn:    rootGetShard,
 	},
 }
 
@@ -37,7 +42,7 @@ func (l *Listener) handleRoot(message discordclient.Message) bool {
 }
 
 func rootStats(l *Listener, message discordclient.Message) string {
-	stats := strings.RootStatsData{}
+	stats := stringrenderer.RootStatsData{}
 
 	// People Info
 	stats.Users = l.Bot.UserCount()
@@ -54,5 +59,22 @@ func rootStats(l *Listener, message discordclient.Message) string {
 	stats.GitBranch = version.GitBranch
 	stats.GitCommit = version.GitCommit
 
-	return strings.Render(strings.RootStats, stats)
+	return stringrenderer.Render(stringrenderer.RootStats, stats)
+}
+
+var shardMatch = regexp.MustCompile("shard of ([0-9]+)$")
+
+func rootGetShard(l *Listener, message discordclient.Message) string {
+	id := shardMatch.FindAllString(message.RawMessage(), 1)[0]
+
+	for _, session := range l.Bot.Sessions {
+		guild, err := session.State.Guild(id)
+		if guild == nil || err != nil {
+			continue
+		}
+
+		return fmt.Sprintf("Shard of **%s** is **%d** (of %d)", guild.Name, session.ShardID, session.ShardCount)
+	}
+
+	return "Shard not found."
 }
