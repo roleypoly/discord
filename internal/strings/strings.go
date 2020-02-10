@@ -15,14 +15,14 @@ var (
 	RootStats = template.Must(
 		template.New("RootStats").Parse(`🐈
 **People Stats**
-:blank: 🙎‍♀️ Total Users: {{ .Users }}
-:blank: 👨‍👩‍👦‍👦 Total Guilds: {{ .Guilds }}
-:blank: 🦺 Total Roles: {{ .Roles }}
+<:blank:676216695375003650>🙎‍♀️ Total Users: {{ .Users }}
+<:blank:676216695375003650>👨‍👩‍👦‍👦 Total Guilds: {{ .Guilds }}
+<:blank:676216695375003650>🦺 Total Roles: {{ .Roles }}
 
 **Bot Stats**
-:blank: 🔩 Total Shards: {{ .Shards }}
-:blank: ⚙️ Revision: {{ .GitCommit }} ({{ .GitBranch }})
-:blank: ⏰ Built at {{ .BuildDate }}
+<:blank:676216695375003650>🔩 Total Shards: {{ .Shards }}
+<:blank:676216695375003650>⚙️ Revision: {{ .GitCommit }} ({{ .GitBranch }})
+<:blank:676216695375003650>⏰ Built at {{ .BuildDate }}
 `,
 		),
 	)
