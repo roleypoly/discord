@@ -65,20 +65,20 @@ func rootStats(l *Listener, message discordclient.Message) string {
 var shardMatch = regexp.MustCompile("shard of ([0-9]+)$")
 
 func rootGetShard(l *Listener, message discordclient.Message) string {
-	id := shardMatch.FindAllString(message.RawMessage(), 1)[0]
+	id := shardMatch.FindAllStringSubmatch(message.RawMessage(), 1)[0][1]
 
 	if l.Bot.Session.ShardCount == 1 {
 		session := l.Bot.Session
 		guild, err := session.State.Guild(id)
 		if guild != nil || err == nil {
-			return fmt.Sprintf("Shard of **%s** is **%d** (of %d)", guild.Name, session.ShardID, session.ShardCount)
+			return fmt.Sprintf("Shard of **%s** is **%d** (of %d)", guild.Name, session.ShardID+1, session.ShardCount)
 		}
 	}
 
 	for _, session := range l.Bot.Sessions {
 		guild, err := session.State.Guild(id)
 		if guild != nil || err == nil {
-			return fmt.Sprintf("Shard of **%s** is **%d** (of %d)", guild.Name, session.ShardID, session.ShardCount)
+			return fmt.Sprintf("Shard of **%s** is **%d** (of %d)", guild.Name, session.ShardID+1, session.ShardCount)
 		}
 	}
 
