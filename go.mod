@@ -12,7 +12,7 @@ require (
 	github.com/lampjaw/discordclient v0.0.0-20191203024148-a457503e9888
 	github.com/mwitkow/go-conntrack v0.0.0-20190716064945-2f068394615f // indirect
 	github.com/roleypoly/gripkit v0.0.0-20190819014327-7141453fff6a
-	github.com/roleypoly/rpc v1.5.0
+	github.com/roleypoly/rpc v1.7.0
 	google.golang.org/grpc v1.27.1
 	k8s.io/klog v1.0.0
 )
