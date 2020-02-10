@@ -63,26 +63,9 @@ func (d *DiscordService) GetMember(ctx context.Context, req *pbShared.IDQuery) (
 	return msgbuilder.Member(member), err
 }
 
-func (d *DiscordService) getGuildSession(guildID string) *discordgo.Session {
-	for _, session := range d.Discord.Sessions {
-		guild, err := session.Guild(guildID)
-		if err != nil && guild != nil {
-			return session
-		}
-	}
-
-	return nil
-}
-
 // UpdateMember
 func (d *DiscordService) UpdateMember(ctx context.Context, req *pbDiscord.Member) (*pbDiscord.Member, error) {
-	session := d.getGuildSession(req.GuildID)
-	if session == nil {
-		klog.Error("Session couldn't be found for ", req.GuildID)
-		return nil, status.Error(codes.NotFound, "Failed to find session to fulfill role update.")
-	}
-
-	err := session.GuildMemberEdit(req.GuildID, req.User.ID, req.Roles)
+	err := d.Discord.Session.GuildMemberEdit(req.GuildID, req.User.ID, req.Roles)
 	if err != nil {
 		klog.Error("Failed to update roles: ", err)
 		return nil, status.Error(codes.Internal, "Failed to update roles.")
