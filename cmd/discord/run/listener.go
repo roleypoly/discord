@@ -38,7 +38,10 @@ func (l *Listener) startListening(msgChan <-chan discordgobot.Message) {
 	klog.Info("discord bot running")
 	for {
 		message := <-msgChan
-		go l.handleMessage(message)
+
+		if message.Type() == discordgobot.MessageTypeCreate {
+			go l.handleMessage(message)
+		}
 	}
 }
 
