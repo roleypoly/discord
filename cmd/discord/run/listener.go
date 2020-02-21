@@ -11,10 +11,11 @@ import (
 
 // Listener is a message processor built on top of the discord client.
 type Listener struct {
-	Bot         *discordgobot.DiscordClient
-	selfMention *regexp.Regexp
-	readOnly    bool
-	RootUsers   []string
+	Bot          *discordgobot.DiscordClient
+	selfMention  *regexp.Regexp
+	readOnly     bool
+	RootUsers    []string
+	BotWhitelist []string
 }
 
 // Run begins the message processor flow and loop.
@@ -51,7 +52,21 @@ func (l *Listener) isRoot(userID string) bool {
 	return false
 }
 
+func (l *Listener) isWhitelistedBot(userID string) bool {
+	for _, id := range l.BotWhitelist {
+		if userID == id {
+			return true
+		}
+	}
+
+	return false
+}
+
 func (l *Listener) handleMessage(message discordgobot.Message) {
+	if message.IsBot() && !l.isWhitelistedBot(message.UserID()) {
+		return
+	}
+
 	raw := message.RawMessage()
 	guildID, err := message.ResolveGuildID()
 	if err != nil {

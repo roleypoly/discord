@@ -57,7 +57,7 @@ func main() {
 
 func setupBot() *discordgobot.DiscordClient {
 	client := discordgobot.NewDiscordClient(discordConfig.BotToken, "", discordConfig.ClientID)
-
+	client.AllowBots = true
 	return client
 }
 
@@ -107,8 +107,9 @@ func startGripkit(bot *discordgobot.DiscordClient) {
 
 func startListener(bot *discordgobot.DiscordClient) {
 	listener := &run.Listener{
-		Bot:       bot,
-		RootUsers: strings.Split(os.Getenv("ROOT_USERS"), ","),
+		Bot:          bot,
+		RootUsers:    strings.Split(os.Getenv("ROOT_USERS"), ","),
+		BotWhitelist: strings.Split(os.Getenv("BOT_WHITELIST"), ","),
 	}
 
 	listener.Run()
