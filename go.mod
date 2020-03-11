@@ -15,6 +15,6 @@ require (
 	github.com/roleypoly/rpc v1.8.1
 	golang.org/x/crypto v0.0.0-20200220183623-bac4c82f6975 // indirect
 	golang.org/x/sys v0.0.0-20200219091948-cb0a6d8edb6c // indirect
-	google.golang.org/grpc v1.27.1
+	google.golang.org/grpc v1.28.0
 	k8s.io/klog v1.0.0
 )
