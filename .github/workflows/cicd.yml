@@ -69,3 +69,10 @@ jobs:
           test ${{ github.ref }} = "refs/heads/develop" && retag next || \
           test ${{ github.ref }} = "refs/heads/ci-testing" && retag scratch || \
           echo "not a well-known branch, not retagging"
+      
+      - name: Container Structure Tests
+        if: github.event_name == 'push'
+        run: |
+          docker run --it --rm -v$(pwd):/src -v/var/run/docker.sock:/var/run/docker.sock \
+            gcr.io/gcp-runtimes/container-structure-test \
+              test --image ${{ github.repository }}:${{ github.ref }} --pull --config /src/Dockerfile_test.yml
