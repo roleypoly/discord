@@ -94,11 +94,15 @@ func startGripkit(bot *discordgobot.DiscordClient) {
 				grpc_auth.UnaryServerInterceptor(sharedSecretAuth),
 			),
 		)),
+		gripkit.WithHealthz(&gripkit.HealthzOptions{
+			UseDefault: true,
+			Addr:       ":1" + os.Getenv("DISCORD_SVC_PORT")[1:],
+		}),
 	)
 
 	proto.RegisterDiscordServer(gk.Server, grpcDiscord)
 
-	klog.Info("gRPC server running on", os.Getenv("DISCORD_SVC_PORT"))
+	klog.Info("gRPC server running on ", os.Getenv("DISCORD_SVC_PORT"))
 	err := gk.Serve()
 	if err != nil {
 		klog.Exit("gRPC server failed to start.", err)

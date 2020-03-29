@@ -28,7 +28,7 @@ func (l *Listener) Run() {
 		return
 	}
 
-	klog.Info("shards:", len(l.Bot.Sessions))
+	klog.Info("shards: ", len(l.Bot.Sessions))
 
 	l.selfMention = regexp.MustCompile("<@!?" + l.Bot.UserID() + ">")
 	go l.startListening(msgChan)

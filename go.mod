@@ -9,7 +9,7 @@ require (
 	github.com/improbable-eng/grpc-web v0.12.0
 	github.com/joho/godotenv v1.3.0
 	github.com/lampjaw/discordclient v0.0.0-20200221030325-d11dec5d1e89
-	github.com/roleypoly/gripkit v0.0.0-20200329000451-87de2809ab5c
+	github.com/roleypoly/gripkit v0.0.0-20200329004628-e03cff127b71
 	github.com/roleypoly/rpc v1.8.1
 	golang.org/x/crypto v0.0.0-20200220183623-bac4c82f6975 // indirect
 	golang.org/x/net v0.0.0-20200324143707-d3edc9973b7e // indirect
