@@ -76,3 +76,21 @@ jobs:
           docker run --rm -v$(pwd):/src -v/var/run/docker.sock:/var/run/docker.sock \
             gcr.io/gcp-runtimes/container-structure-test \
               test --image ${{ github.repository }}:${{ github.sha }} --pull --config /src/Dockerfile_test.yml
+
+      - name: Deploy to Staging
+        uses: roleypoly/actions/deploy@master
+        if: github.ref == 'refs/heads/develop'
+        with:
+          environment: staging
+          new_tag: ${{ github.sha }}
+          app: discord
+          github_auth_token: ${{ secrets.GITOPS_TOKEN }}
+
+      - name: Deploy to Production
+        uses: roleypoly/actions/deploy@master
+        if: github.ref == 'refs/heads/master'
+        with:
+          environment: production
+          new_tag: ${{ github.sha }}
+          app: discord
+          github_auth_token: ${{ secrets.GITOPS_TOKEN }}
