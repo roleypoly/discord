@@ -44,8 +44,13 @@ func (l *Listener) handleRoot(message discordclient.Message) bool {
 func rootStats(l *Listener, message discordclient.Message) string {
 	stats := stringrenderer.RootStatsData{}
 
+	memberCount := 0
+	for _, guild := range l.Bot.Guilds() {
+		memberCount += guild.MemberCount
+	}
+
 	// People Info
-	stats.Users = l.Bot.UserCount()
+	stats.Users = memberCount
 	stats.Guilds = len(l.Bot.Guilds())
 	roles := 0
 	for _, guild := range l.Bot.Guilds() {
