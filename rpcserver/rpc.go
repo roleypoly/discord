@@ -2,11 +2,13 @@ package rpcserver
 
 import (
 	"context"
+	"os"
+	"strconv"
 
-	"github.com/bwmarrin/discordgo"
 	"github.com/golang/protobuf/ptypes/empty"
+	lru "github.com/hashicorp/golang-lru"
 	discordgobot "github.com/lampjaw/discordclient"
-	"github.com/roleypoly/discord/internal/permissions"
+	"github.com/roleypoly/discord/internal/utils"
 	"github.com/roleypoly/discord/msgbuilder"
 	pbDiscord "github.com/roleypoly/rpc/discord"
 	pbShared "github.com/roleypoly/rpc/shared"
@@ -19,6 +21,31 @@ import (
 type DiscordService struct {
 	pbDiscord.DiscordServer
 	Discord *discordgobot.DiscordClient
+
+	memberCache *lru.ARCCache
+}
+
+func NewDiscordService(discordClient *discordgobot.DiscordClient) *DiscordService {
+	cacheTuningVar := os.Getenv("TUNING_MEMBER_CACHE_SIZE")
+	if cacheTuningVar == "" {
+		cacheTuningVar = "10000"
+	}
+
+	cacheTuning, err := strconv.Atoi(cacheTuningVar)
+	if err != nil {
+		klog.Warning("TUNING_MEMBER_CACHE_SIZE invalid, defauling to 10000")
+		cacheTuning = 10000
+	}
+
+	memberCache, err := lru.NewARC(cacheTuning)
+	if err != nil {
+		klog.Fatal("Could not make memberCache")
+	}
+
+	return &DiscordService{
+		Discord:     discordClient,
+		memberCache: memberCache,
+	}
 }
 
 // ListGuilds lists every guild in state.
@@ -44,7 +71,7 @@ func (d *DiscordService) GetGuild(ctx context.Context, req *pbShared.IDQuery) (*
 func (d *DiscordService) GetGuildsByMember(ctx context.Context, req *pbShared.IDQuery) (*pbShared.GuildList, error) {
 	memberGuilds := &pbShared.GuildList{}
 	for _, guild := range d.Discord.Guilds() {
-		mem, err := d.Discord.GuildMember(req.MemberID, guild.ID)
+		mem, err := d.fetchMember(req, false)
 		if err != nil {
 			continue
 		}
@@ -59,7 +86,7 @@ func (d *DiscordService) GetGuildsByMember(ctx context.Context, req *pbShared.ID
 
 // GetMember fetches a guild member by a server.
 func (d *DiscordService) GetMember(ctx context.Context, req *pbShared.IDQuery) (*pbDiscord.Member, error) {
-	member, err := d.Discord.GuildMember(req.MemberID, req.GuildID)
+	member, err := d.fetchMember(req, false)
 	return msgbuilder.Member(member), err
 }
 
@@ -74,41 +101,50 @@ func (d *DiscordService) UpdateMember(ctx context.Context, req *pbDiscord.Member
 	return req, nil
 }
 
-func getRoleFromRoles(roleID string, roles []*discordgo.Role) *discordgo.Role {
-	for _, role := range roles {
-		if role.ID == roleID {
-			return role
-		}
-	}
-
-	return nil
-}
-
-func (d *DiscordService) calculateSafety(guild *discordgo.Guild, role *pbShared.Role) pbShared.Role_RoleSafety {
-	if permissions.ProtoRoleHasPermission(role, discordgo.PermissionManageRoles) || permissions.ProtoRoleHasPermission(role, discordgo.PermissionAdministrator) {
-		return pbShared.Role_dangerousPermissions
-	}
-
-	ownMember, err := d.Discord.GuildMember(d.Discord.UserID(), guild.ID)
+// UpdateMemberRoles transactionally-ish updates roles with an add/remove action. Only makes one request, though.
+func (d *DiscordService) UpdateMemberRoles(ctx context.Context, tx *pbDiscord.RoleTransaction) (*pbDiscord.RoleTransactionResult, error) {
+	member, err := d.fetchMember(tx.Member, true)
 	if err != nil {
-		klog.Error("ownMember is nil in", guild.ID)
-		return pbShared.Role_higherThanBot
+		klog.Error("UpdateMemberRoles: failed on fetch -- ", err)
+		return nil, err
 	}
 
-	highestOwnRolePosition := 0
-	for _, roleID := range ownMember.Roles {
-		checkRole := getRoleFromRoles(roleID, guild.Roles)
+	newRoles := member.Roles
+	for _, delta := range tx.Delta {
+		switch delta.Action {
 
-		if checkRole.Position > highestOwnRolePosition {
-			highestOwnRolePosition = checkRole.Position
+		case pbDiscord.TxDelta_ADD:
+			newRoles = append(newRoles, delta.Role)
+
+		case pbDiscord.TxDelta_REMOVE:
+			newRoles = utils.RemoveValueFromSlice(newRoles, delta.Role)
+
 		}
 	}
 
-	if role.Position > int32(highestOwnRolePosition) {
-		return pbShared.Role_higherThanBot
+	guild, err := d.Discord.Guild(tx.Member.GuildID)
+	ownMember, err := d.ownMember(tx.Member.GuildID)
+	newRoles = sanitizeRoles(ownMember, guild, newRoles)
+
+	err = d.Discord.Session.GuildMemberEdit(tx.Member.GuildID, tx.Member.MemberID, newRoles)
+	if err != nil {
+		klog.Error("UpdateMemberRoles: failed on edit -- ", err)
+		return nil, err
 	}
 
-	return pbShared.Role_safe
+	member.Roles = newRoles
+
+	status := pbDiscord.RoleTransactionResult_DONE
+	if d.isUpdateRatelimited(tx.Member.GuildID) {
+		status = pbDiscord.RoleTransactionResult_QUEUED
+	}
+
+	d.memberCache.Remove(d.memberKey(tx.Member.GuildID, tx.Member.MemberID))
+
+	return &pbDiscord.RoleTransactionResult{
+		Member: msgbuilder.Member(member),
+		Status: status,
+	}, nil
 }
 
 func (d *DiscordService) GetGuildRoles(ctx context.Context, req *pbShared.IDQuery) (*pbShared.GuildRoles, error) {
@@ -117,10 +153,15 @@ func (d *DiscordService) GetGuildRoles(ctx context.Context, req *pbShared.IDQuer
 		return nil, err
 	}
 
+	ownMember, err := d.Discord.GuildMember(d.Discord.User.ID, req.GuildID)
+	if err != nil {
+		return nil, err
+	}
+
 	roles := msgbuilder.Roles(guild.Roles)
 
 	for _, role := range roles {
-		role.Safety = d.calculateSafety(guild, role)
+		role.Safety = calculateSafety(ownMember, guild, role)
 	}
 
 	return &pbShared.GuildRoles{
