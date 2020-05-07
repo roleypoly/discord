@@ -56,17 +56,9 @@ jobs:
           push: 'true'
 
       - name: Retag Image
-        run: |
-          retag() {
-            curl -sSL https://github.com/docker/buildx/releases/download/v0.3.0/buildx-v0.3.0.linux-amd64 > $HOME/buildx &&\
-            chmod a+x $HOME/buildx &&\
-            $HOME/buildx imagetools create --tag "${{ github.repository }}:$1" "${{ github.repository }}:${{ github.sha }}" && \
-            exit 0
-          }
-          test ${{ github.ref }} = "refs/heads/master" && retag latest || \
-          test ${{ github.ref }} = "refs/heads/develop" && retag next || \
-          test ${{ github.ref }} = "refs/heads/ci-testing" && retag scratch || \
-          echo "not a well-known branch, not retagging"
+        uses: roleypoly/actions/retag@master
+        with:
+          src: ${{ github.repository }}:${{ github.sha }}
       
       - name: Container Structure Tests
         run: |
