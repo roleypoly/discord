@@ -1,6 +1,6 @@
 name: CI Workflow
 
-on: [push, pull_request]
+on: push
 
 jobs:
   go_test:
@@ -49,7 +49,6 @@ jobs:
 
       - name: Build & Push Docker Image
         uses: roleypoly/actions/dxt@master
-        if: github.event_name == 'push'
         with:
           tag: ${{ github.repository }}:${{ github.sha }}
           platforms: linux/amd64
@@ -57,22 +56,30 @@ jobs:
           push: 'true'
 
       - name: Retag Image
-        if: github.event_name == 'push'
-        run: |
-          retag() {
-            curl -sSL https://github.com/docker/buildx/releases/download/v0.3.0/buildx-v0.3.0.linux-amd64 > $HOME/buildx &&\
-            chmod a+x $HOME/buildx &&\
-            $HOME/buildx imagetools create --tag "${{ github.repository }}:$1" "${{ github.repository }}:${{ github.sha }}" && \
-            exit 0
-          }
-          test ${{ github.ref }} = "refs/heads/master" && retag latest || \
-          test ${{ github.ref }} = "refs/heads/develop" && retag next || \
-          test ${{ github.ref }} = "refs/heads/ci-testing" && retag scratch || \
-          echo "not a well-known branch, not retagging"
+        uses: roleypoly/actions/retag@master
+        with:
+          src: ${{ github.repository }}:${{ github.sha }}
       
       - name: Container Structure Tests
-        if: github.event_name == 'push'
         run: |
           docker run --rm -v$(pwd):/src -v/var/run/docker.sock:/var/run/docker.sock \
             gcr.io/gcp-runtimes/container-structure-test \
               test --image ${{ github.repository }}:${{ github.sha }} --pull --config /src/Dockerfile_test.yml
+
+      - name: Deploy to Staging
+        uses: roleypoly/actions/deploy@master
+        if: github.ref == 'refs/heads/develop'
+        with:
+          environment: staging
+          new_tag: ${{ github.sha }}
+          app: discord
+          github_auth_token: ${{ secrets.GITOPS_TOKEN }}
+
+      - name: Deploy to Production
+        uses: roleypoly/actions/deploy@master
+        if: github.ref == 'refs/heads/master'
+        with:
+          environment: production
+          new_tag: ${{ github.sha }}
+          app: discord
+          github_auth_token: ${{ secrets.GITOPS_TOKEN }}
