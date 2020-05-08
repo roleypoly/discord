@@ -72,7 +72,11 @@ func (d *DiscordService) GetGuild(ctx context.Context, req *pbShared.IDQuery) (*
 func (d *DiscordService) GetGuildsByMember(ctx context.Context, req *pbShared.IDQuery) (*pbShared.GuildList, error) {
 	memberGuilds := &pbShared.GuildList{}
 	for _, guild := range d.Discord.Guilds() {
-		mem, err := d.fetchMember(req, false)
+		query := &pbShared.IDQuery{
+			MemberID: req.MemberID,
+			GuildID:  guild.ID,
+		}
+		mem, err := d.fetchMember(query, false)
 		if err != nil {
 			continue
 		}
@@ -104,6 +108,7 @@ func (d *DiscordService) UpdateMember(ctx context.Context, req *pbDiscord.Member
 
 // UpdateMemberRoles transactionally-ish updates roles with an add/remove action. Only makes one request, though.
 func (d *DiscordService) UpdateMemberRoles(ctx context.Context, tx *pbDiscord.RoleTransaction) (*pbDiscord.RoleTransactionResult, error) {
+	klog.Info("UpdateMemberRoles: got update for ", tx.Member, " using ", tx.Delta)
 	member, err := d.fetchMember(tx.Member, true)
 	if err != nil {
 		klog.Error("UpdateMemberRoles: failed on fetch -- ", err)
@@ -111,31 +116,18 @@ func (d *DiscordService) UpdateMemberRoles(ctx context.Context, tx *pbDiscord.Ro
 	}
 
 	newRoles := member.Roles
+
 	for _, delta := range tx.Delta {
 		switch delta.Action {
 
 		case pbDiscord.TxDelta_ADD:
 			newRoles = append(newRoles, delta.Role)
+			klog.Info("Added ", delta.Role)
 
 		case pbDiscord.TxDelta_REMOVE:
 			newRoles = utils.RemoveValueFromSlice(newRoles, delta.Role)
-
 		}
 	}
-
-	guild, err := d.Discord.Guild(tx.Member.GuildID)
-	if err != nil {
-		klog.Error("UpdateMemberRoles: failed to fetch guild -- ", err)
-		return nil, grpc.Errorf(codes.Internal, "Role update failed.")
-	}
-
-	ownMember, err := d.ownMember(tx.Member.GuildID)
-	if err != nil {
-		klog.Error("UpdateMemberRoles: failed to fetch bot member -- ", err)
-		return nil, grpc.Errorf(codes.Internal, "Role update failed.")
-	}
-
-	newRoles = sanitizeRoles(ownMember, guild, newRoles)
 
 	err = d.Discord.Session.GuildMemberEdit(tx.Member.GuildID, tx.Member.MemberID, newRoles)
 	if err != nil {
@@ -164,7 +156,7 @@ func (d *DiscordService) GetGuildRoles(ctx context.Context, req *pbShared.IDQuer
 		return nil, err
 	}
 
-	ownMember, err := d.Discord.GuildMember(d.Discord.User.ID, req.GuildID)
+	ownMember, err := d.ownMember(req.GuildID)
 	if err != nil {
 		return nil, err
 	}

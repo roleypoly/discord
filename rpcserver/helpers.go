@@ -12,7 +12,7 @@ import (
 // Fetch member by looking at cache, state, then REST. Returns nil if not present. Invalidate will skip cache.
 func (d *DiscordService) fetchMember(req *pbShared.IDQuery, invalidate bool) (*discordgo.Member, error) {
 	key := d.memberKey(req.GuildID, req.MemberID)
-	if !invalidate {
+	if !invalidate && d.memberCache.Contains(key) {
 		memberIntf, ok := d.memberCache.Get(key)
 		if ok {
 			member, ok := memberIntf.(*discordgo.Member)
@@ -24,8 +24,10 @@ func (d *DiscordService) fetchMember(req *pbShared.IDQuery, invalidate bool) (*d
 
 	member, err := d.Discord.GuildMember(req.MemberID, req.GuildID)
 	if err != nil {
-		klog.Error("fetchMember (state) failed: ", req, " -- ", err)
-		return nil, err
+		if err != discordgo.ErrStateNotFound {
+			klog.Error("fetchMember (state) failed: ", req, " -- ", err)
+			return nil, err
+		}
 	}
 
 	if member == nil {
@@ -113,13 +115,13 @@ func sanitizeRoles(targetMember *discordgo.Member, guild *discordgo.Guild, roles
 
 func (d *DiscordService) ownMember(guildID string) (*discordgo.Member, error) {
 	return d.fetchMember(&pbShared.IDQuery{
-		MemberID: d.Discord.User.ID,
+		MemberID: d.Discord.ClientID,
 		GuildID:  guildID,
 	}, false)
 }
 
-type cacheKey string
+// type cacheKey string
 
-func (d *DiscordService) memberKey(guildID, memberID string) cacheKey {
-	return cacheKey(guildID + "-" + memberID)
+func (d *DiscordService) memberKey(guildID, memberID string) string {
+	return guildID + "-" + memberID
 }
