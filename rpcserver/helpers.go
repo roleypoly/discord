@@ -11,6 +11,11 @@ import (
 
 // Fetch member by looking at cache, state, then REST. Returns nil if not present. Invalidate will skip cache.
 func (d *DiscordService) fetchMember(req *pbShared.IDQuery, invalidate bool) (*discordgo.Member, error) {
+	guild, err := d.Discord.Guild(req.GuildID)
+	if err != nil {
+		return nil, err
+	}
+
 	key := d.memberKey(req.GuildID, req.MemberID)
 	if !invalidate && d.memberCache.Contains(key) {
 		memberIntf, ok := d.memberCache.Get(key)
@@ -35,9 +40,11 @@ func (d *DiscordService) fetchMember(req *pbShared.IDQuery, invalidate bool) (*d
 	}
 
 	if member == nil {
-		member, err = d.Discord.Session.GuildMember(req.GuildID, req.MemberID)
-		if err != nil && err.Error() != "HTTP 404 Not Found" {
-			klog.Error("fetchMember (rest) failed: ", req, " -- ", err)
+		if guild.MemberCount > 3000 {
+			member, err = d.Discord.Session.GuildMember(req.GuildID, req.MemberID)
+			if err != nil && err.Error() != "HTTP 404 Not Found" {
+				klog.Error("fetchMember (rest) failed: ", req, " -- ", err)
+			}
 		}
 
 		if member == nil {
