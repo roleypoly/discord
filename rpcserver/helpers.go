@@ -52,8 +52,8 @@ func (d *DiscordService) fetchMember(req *pbShared.IDQuery, invalidate bool) (*d
 func (d *DiscordService) isUpdateRatelimited(guildID string) bool {
 	bucketKey := discordgo.EndpointGuildMember(guildID, "")
 	bucket := d.Discord.Session.Ratelimiter.GetBucket(bucketKey)
-	if bucket.Remaining > 1 {
-		if bucket.Remaining > 20 {
+	if bucket.Remaining > 15 {
+		if bucket.Remaining > 100 {
 			klog.Info("threshold ratelimited in bucket: ", guildID, " -- ", bucket.Remaining, " remaining in queue")
 		}
 
