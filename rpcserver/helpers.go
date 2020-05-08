@@ -15,6 +15,10 @@ func (d *DiscordService) fetchMember(req *pbShared.IDQuery, invalidate bool) (*d
 	if !invalidate && d.memberCache.Contains(key) {
 		memberIntf, ok := d.memberCache.Get(key)
 		if ok {
+			if memberIntf == nil {
+				return nil, nil
+			}
+
 			member, ok := memberIntf.(*discordgo.Member)
 			if ok {
 				return member, nil
@@ -32,9 +36,8 @@ func (d *DiscordService) fetchMember(req *pbShared.IDQuery, invalidate bool) (*d
 
 	if member == nil {
 		member, err = d.Discord.Session.GuildMember(req.GuildID, req.MemberID)
-		if err != nil {
+		if err != nil && err.Error() != "HTTP 404 Not Found" {
 			klog.Error("fetchMember (rest) failed: ", req, " -- ", err)
-			return nil, err
 		}
 
 		if member == nil {
