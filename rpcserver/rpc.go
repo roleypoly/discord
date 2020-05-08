@@ -12,6 +12,7 @@ import (
 	"github.com/roleypoly/discord/msgbuilder"
 	pbDiscord "github.com/roleypoly/rpc/discord"
 	pbShared "github.com/roleypoly/rpc/shared"
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"k8s.io/klog"
@@ -123,13 +124,23 @@ func (d *DiscordService) UpdateMemberRoles(ctx context.Context, tx *pbDiscord.Ro
 	}
 
 	guild, err := d.Discord.Guild(tx.Member.GuildID)
+	if err != nil {
+		klog.Error("UpdateMemberRoles: failed to fetch guild -- ", err)
+		return nil, grpc.Errorf(codes.Internal, "Role update failed.")
+	}
+
 	ownMember, err := d.ownMember(tx.Member.GuildID)
+	if err != nil {
+		klog.Error("UpdateMemberRoles: failed to fetch bot member -- ", err)
+		return nil, grpc.Errorf(codes.Internal, "Role update failed.")
+	}
+
 	newRoles = sanitizeRoles(ownMember, guild, newRoles)
 
 	err = d.Discord.Session.GuildMemberEdit(tx.Member.GuildID, tx.Member.MemberID, newRoles)
 	if err != nil {
 		klog.Error("UpdateMemberRoles: failed on edit -- ", err)
-		return nil, err
+		return nil, grpc.Errorf(codes.Internal, "Role update failed.")
 	}
 
 	member.Roles = newRoles
