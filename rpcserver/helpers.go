@@ -24,7 +24,7 @@ func (d *DiscordService) fetchMember(req *pbShared.IDQuery, invalidate bool) (*d
 
 	member, err := d.Discord.GuildMember(req.MemberID, req.GuildID)
 	if err != nil {
-		if err != discordgo.ErrStateNotFound {
+		if err != discordgo.ErrStateNotFound && err.Error() != "not found" {
 			klog.Error("fetchMember (state) failed: ", req, " -- ", err)
 			return nil, err
 		}
@@ -38,6 +38,7 @@ func (d *DiscordService) fetchMember(req *pbShared.IDQuery, invalidate bool) (*d
 		}
 
 		if member == nil {
+			d.memberCache.Add(key, nil)
 			return nil, nil
 		}
 	}

@@ -122,7 +122,6 @@ func (d *DiscordService) UpdateMemberRoles(ctx context.Context, tx *pbDiscord.Ro
 
 		case pbDiscord.TxDelta_ADD:
 			newRoles = append(newRoles, delta.Role)
-			klog.Info("Added ", delta.Role)
 
 		case pbDiscord.TxDelta_REMOVE:
 			newRoles = utils.RemoveValueFromSlice(newRoles, delta.Role)
