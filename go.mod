@@ -6,6 +6,7 @@ require (
 	github.com/bwmarrin/discordgo v0.20.3
 	github.com/golang/protobuf v1.4.1
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.0
+	github.com/hashicorp/golang-lru v0.5.4
 	github.com/improbable-eng/grpc-web v0.12.0
 	github.com/joho/godotenv v1.3.0
 	github.com/lampjaw/discordclient v0.0.0-20200221030325-d11dec5d1e89

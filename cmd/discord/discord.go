@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"net"
 	"os"
 	"os/signal"
 	"strings"
@@ -11,7 +12,7 @@ import (
 	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
 	_ "github.com/joho/godotenv/autoload"
-	discordgobot "github.com/lampjaw/discordclient"
+	"github.com/lampjaw/discordclient"
 	"github.com/roleypoly/discord/cmd/discord/run"
 	"github.com/roleypoly/discord/internal/version"
 	"github.com/roleypoly/discord/rpcserver"
@@ -39,7 +40,8 @@ var sharedSecret = os.Getenv("SHARED_SECRET")
 var servicePort = os.Getenv("DISCORD_SVC_PORT")
 
 func main() {
-
+	klog.InitFlags(nil)
+	klog.V(1).Info("Verbose on")
 	klog.Infof(
 		"Starting discord service.\n Build %s (%s) at %s",
 		version.GitCommit,
@@ -55,8 +57,8 @@ func main() {
 	go startListener(bot)
 }
 
-func setupBot() *discordgobot.DiscordClient {
-	client := discordgobot.NewDiscordClient(discordConfig.BotToken, "", discordConfig.ClientID)
+func setupBot() *discordclient.DiscordClient {
+	client := discordclient.NewDiscordClient(discordConfig.BotToken, "", discordConfig.ClientID)
 	client.AllowBots = true
 	return client
 }
@@ -74,10 +76,11 @@ func sharedSecretAuth(ctx context.Context) (context.Context, error) {
 	return ctx, nil
 }
 
-func startGripkit(bot *discordgobot.DiscordClient) {
-	grpcDiscord := &rpcserver.DiscordService{
-		Discord: bot,
-	}
+func startGripkit(bot *discordclient.DiscordClient) {
+	grpcDiscord := rpcserver.NewDiscordService(bot)
+
+	host, port, _ := net.SplitHostPort(os.Getenv("DISCORD_SVC_PORT"))
+	healthzPort := host + ":1" + port
 
 	gk := gripkit.Create(
 		gripkit.WithHTTPOptions(gripkit.HTTPOptions{
@@ -96,7 +99,7 @@ func startGripkit(bot *discordgobot.DiscordClient) {
 		)),
 		gripkit.WithHealthz(&gripkit.HealthzOptions{
 			UseDefault: true,
-			Addr:       ":1" + os.Getenv("DISCORD_SVC_PORT")[1:],
+			Addr:       healthzPort,
 		}),
 	)
 
@@ -109,7 +112,7 @@ func startGripkit(bot *discordgobot.DiscordClient) {
 	}
 }
 
-func startListener(bot *discordgobot.DiscordClient) {
+func startListener(bot *discordclient.DiscordClient) {
 	listener := &run.Listener{
 		Bot:          bot,
 		RootUsers:    strings.Split(os.Getenv("ROOT_USERS"), ","),

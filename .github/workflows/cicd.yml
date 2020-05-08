@@ -55,16 +55,16 @@ jobs:
           qemu: 'false'
           push: 'true'
 
-      - name: Retag Image
-        uses: roleypoly/actions/retag@master
-        with:
-          src: ${{ github.repository }}:${{ github.sha }}
-      
       - name: Container Structure Tests
         run: |
           docker run --rm -v$(pwd):/src -v/var/run/docker.sock:/var/run/docker.sock \
             gcr.io/gcp-runtimes/container-structure-test \
               test --image ${{ github.repository }}:${{ github.sha }} --pull --config /src/Dockerfile_test.yml
+
+      - name: Retag Image
+        uses: roleypoly/actions/retag@master
+        with:
+          src: ${{ github.repository }}:${{ github.sha }}
 
       - name: Deploy to Staging
         uses: roleypoly/actions/deploy@master

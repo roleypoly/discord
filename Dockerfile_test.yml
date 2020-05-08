@@ -1,10 +1,14 @@
 schemaVersion: '2.0.0'
 
+globalEnvVars:
+- key: DISCORD_SVC_PORT
+  value: 127.0.0.1:6777
+
 commandTests:
 - name: 'app test'
   command: '/app'
   expectedError: ['.*Starting.*', '.*Build [0-9a-f]+.*'] # /app outputs it's logs to stderr
-  exitCode: 2
+  exitCode: 1
 
 fileContentTests:
 - name: 'passwd'
