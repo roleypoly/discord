@@ -1,7 +1,7 @@
 schemaVersion: '2.0.0'
 
 globalEnvVars:
-- name: DISCORD_SVC_PORT
+- key: DISCORD_SVC_PORT
   value: 127.0.0.1:6777
 
 commandTests:
