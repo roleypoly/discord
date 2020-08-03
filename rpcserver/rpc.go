@@ -71,18 +71,20 @@ func (d *DiscordService) GetGuild(ctx context.Context, req *pbShared.IDQuery) (*
 // GetGuildsByMember searches for guilds that include a certain member.
 func (d *DiscordService) GetGuildsByMember(ctx context.Context, req *pbShared.IDQuery) (*pbShared.GuildList, error) {
 	memberGuilds := &pbShared.GuildList{}
-	for _, guild := range d.Discord.Guilds() {
-		query := &pbShared.IDQuery{
-			MemberID: req.MemberID,
-			GuildID:  guild.ID,
-		}
-		mem, err := d.fetchMember(query, false)
-		if err != nil {
-			continue
-		}
+	for _, session := range d.Discord.Sessions {
+		for _, guild := range session.State.Guilds {
+			query := &pbShared.IDQuery{
+				MemberID: req.MemberID,
+				GuildID:  guild.ID,
+			}
+			mem, err := d.fetchMember(query, false)
+			if err != nil {
+				continue
+			}
 
-		if mem != nil {
-			memberGuilds.Guilds = append(memberGuilds.Guilds, msgbuilder.Guild(guild))
+			if mem != nil {
+				memberGuilds.Guilds = append(memberGuilds.Guilds, msgbuilder.Guild(guild))
+			}
 		}
 	}
 
