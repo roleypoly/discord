@@ -11,9 +11,9 @@ import (
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
+	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
 	_ "github.com/joho/godotenv/autoload"
-	panichandler "github.com/kazegusuri/grpc-panic-handler"
 	"github.com/lampjaw/discordclient"
 	"github.com/roleypoly/discord/cmd/discord/run"
 	"github.com/roleypoly/discord/internal/version"
@@ -98,7 +98,12 @@ func startGripkit(bot *discordclient.DiscordClient) {
 		gripkit.WithOptions(grpc.UnaryInterceptor(
 			grpc_middleware.ChainUnaryServer(
 				grpc_auth.UnaryServerInterceptor(sharedSecretAuth),
-				panichandler.UnaryPanicHandler,
+				grpc_recovery.UnaryServerInterceptor(grpc_recovery.WithRecoveryHandler(
+					func(recovery interface{}) error {
+						klog.Error("panic recovered: ", recovery)
+						return nil
+					},
+				)),
 			),
 		)),
 		gripkit.WithHealthz(&gripkit.HealthzOptions{
@@ -106,10 +111,6 @@ func startGripkit(bot *discordclient.DiscordClient) {
 			Addr:       healthzPort,
 		}),
 	)
-
-	panichandler.InstallPanicHandler(func(panicErr interface{}) {
-		klog.Error("panic handled: ", panicErr)
-	})
 
 	proto.RegisterDiscordServer(gk.Server, grpcDiscord)
 
