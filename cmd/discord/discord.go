@@ -7,11 +7,13 @@ import (
 	"os/signal"
 	"strings"
 	"syscall"
+	"time"
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
 	_ "github.com/joho/godotenv/autoload"
+	panichandler "github.com/kazegusuri/grpc-panic-handler"
 	"github.com/lampjaw/discordclient"
 	"github.com/roleypoly/discord/cmd/discord/run"
 	"github.com/roleypoly/discord/internal/version"
@@ -52,9 +54,9 @@ func main() {
 	defer awaitExit()
 
 	bot := setupBot()
+	go startListener(bot)
 
 	go startGripkit(bot)
-	go startListener(bot)
 }
 
 func setupBot() *discordclient.DiscordClient {
@@ -77,6 +79,7 @@ func sharedSecretAuth(ctx context.Context) (context.Context, error) {
 }
 
 func startGripkit(bot *discordclient.DiscordClient) {
+	time.Sleep(2 * time.Second)
 	grpcDiscord := rpcserver.NewDiscordService(bot)
 
 	host, port, _ := net.SplitHostPort(os.Getenv("DISCORD_SVC_PORT"))
@@ -95,6 +98,7 @@ func startGripkit(bot *discordclient.DiscordClient) {
 		gripkit.WithOptions(grpc.UnaryInterceptor(
 			grpc_middleware.ChainUnaryServer(
 				grpc_auth.UnaryServerInterceptor(sharedSecretAuth),
+				panichandler.UnaryPanicHandler,
 			),
 		)),
 		gripkit.WithHealthz(&gripkit.HealthzOptions{
@@ -102,6 +106,10 @@ func startGripkit(bot *discordclient.DiscordClient) {
 			Addr:       healthzPort,
 		}),
 	)
+
+	panichandler.InstallPanicHandler(func(panicErr interface{}) {
+		klog.Error("panic handled: ", panicErr)
+	})
 
 	proto.RegisterDiscordServer(gk.Server, grpcDiscord)
 

@@ -9,6 +9,7 @@ require (
 	github.com/hashicorp/golang-lru v0.5.4
 	github.com/improbable-eng/grpc-web v0.12.0
 	github.com/joho/godotenv v1.3.0
+	github.com/kazegusuri/grpc-panic-handler v0.0.0-20160502122501-093ec776affc
 	github.com/lampjaw/discordclient v0.0.0-20200221030325-d11dec5d1e89
 	github.com/roleypoly/gripkit v0.0.0-20200329004628-e03cff127b71
 	github.com/roleypoly/rpc v1.9.0
