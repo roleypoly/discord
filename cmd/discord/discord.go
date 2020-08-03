@@ -62,6 +62,11 @@ func main() {
 func setupBot() *discordclient.DiscordClient {
 	client := discordclient.NewDiscordClient(discordConfig.BotToken, "", discordConfig.ClientID)
 	client.AllowBots = true
+
+	client.Session.Identify.Intents = nil
+	for _, session := range client.Sessions {
+		session.Identify.Intents = nil
+	}
 	return client
 }
 
