@@ -40,7 +40,7 @@ func (d *DiscordService) fetchMember(req *pbShared.IDQuery, invalidate bool) (*d
 	}
 
 	if member == nil {
-		if guild.MemberCount > 3000 {
+		if guild.MemberCount > 5000 {
 			member, err = d.Discord.Session.GuildMember(req.GuildID, req.MemberID)
 			if err != nil && err.Error() != "HTTP 404 Not Found" {
 				klog.Error("fetchMember (rest) failed: ", req, " -- ", err)
