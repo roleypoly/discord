@@ -9,7 +9,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/bwmarrin/discordgo"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
 	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
@@ -64,10 +63,6 @@ func setupBot() *discordclient.DiscordClient {
 	client := discordclient.NewDiscordClient(discordConfig.BotToken, "", discordConfig.ClientID)
 	client.AllowBots = true
 
-	client.Session.Identify.Intents = discordgo.MakeIntent(discordgo.IntentsAll)
-	for _, session := range client.Sessions {
-		session.Identify.Intents = discordgo.MakeIntent(discordgo.IntentsAll)
-	}
 	return client
 }
 

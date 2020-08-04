@@ -20,3 +20,5 @@ require (
 	google.golang.org/grpc v1.29.1
 	k8s.io/klog v1.0.0
 )
+
+replace github.com/lampjaw/discordclient => github.com/kayteh/discordclient v0.0.0-20200803235848-bc9f2cd8e645
