@@ -1,6 +1,6 @@
 # Accept the Go version for the image to be set as a build argument.
 # Default to Go 1.12
-ARG GO_VERSION=1.13
+ARG GO_VERSION=1.14
 
 # First stage: build the executable.
 FROM --platform=$BUILDPLATFORM golang:${GO_VERSION}-alpine AS builder
