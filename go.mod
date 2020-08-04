@@ -3,7 +3,7 @@ module github.com/roleypoly/discord
 go 1.13
 
 require (
-	github.com/bwmarrin/discordgo v0.22.0
+	github.com/bwmarrin/discordgo v0.20.1
 	github.com/golang/protobuf v1.4.1
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.0
 	github.com/hashicorp/golang-lru v0.5.4
@@ -21,4 +21,4 @@ require (
 	k8s.io/klog v1.0.0
 )
 
-replace github.com/lampjaw/discordclient => github.com/kayteh/discordclient v0.0.0-20200803235848-bc9f2cd8e645
+// replace github.com/lampjaw/discordclient => github.com/kayteh/discordclient v0.0.0-20200803235848-bc9f2cd8e645
