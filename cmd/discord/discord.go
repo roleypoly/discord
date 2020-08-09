@@ -13,8 +13,8 @@ import (
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/lampjaw/discordclient"
+	"github.com/roleypoly/common/version"
 	"github.com/roleypoly/discord/cmd/discord/run"
-	"github.com/roleypoly/discord/internal/version"
 	"github.com/roleypoly/discord/rpcserver"
 	"github.com/roleypoly/gripkit"
 	proto "github.com/roleypoly/rpc/discord"
@@ -42,12 +42,7 @@ var servicePort = os.Getenv("DISCORD_SVC_PORT")
 func main() {
 	klog.InitFlags(nil)
 	klog.V(1).Info("Verbose on")
-	klog.Infof(
-		"Starting discord service.\n Build %s (%s) at %s",
-		version.GitCommit,
-		version.GitBranch,
-		version.BuildDate,
-	)
+	klog.Info(version.StartupInfo("discord"))
 
 	defer awaitExit()
 
