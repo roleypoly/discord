@@ -17,6 +17,6 @@ require (
 	golang.org/x/sys v0.0.0-20200501145240-bc7a7d42d5c3 // indirect
 	golang.org/x/text v0.3.2 // indirect
 	google.golang.org/genproto v0.0.0-20200507105951-43844f6eee31 // indirect
-	google.golang.org/grpc v1.31.1
+	google.golang.org/grpc v1.32.0
 	k8s.io/klog v1.0.0
 )
