@@ -11,10 +11,10 @@ import (
 
 // Fetch member by looking at cache, state, then REST. Returns nil if not present. Invalidate will skip cache.
 func (d *DiscordService) fetchMember(req *pbShared.IDQuery, invalidate bool) (*discordgo.Member, error) {
-	guild, err := d.Discord.Guild(req.GuildID)
-	if err != nil {
-		return nil, err
-	}
+	// guild, err := d.Discord.Guild(req.GuildID)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
 	key := d.memberKey(req.GuildID, req.MemberID)
 	if !invalidate && d.memberCache.Contains(key) {
