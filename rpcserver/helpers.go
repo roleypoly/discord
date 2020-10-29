@@ -134,5 +134,5 @@ func (d *DiscordService) ownMember(guildID string) (*discordgo.Member, error) {
 // type cacheKey string
 
 func (d *DiscordService) memberKey(guildID, memberID string) string {
-	return guildID + "-" + memberID
+	return "member:" + guildID + "-" + memberID
 }

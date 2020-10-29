@@ -46,7 +46,7 @@ func (d *DiscordService) ListGuilds(ctx context.Context, req *empty.Empty) (*pbS
 
 // GetGuild fetches a single Guild from state.
 func (d *DiscordService) GetGuild(ctx context.Context, req *pbShared.IDQuery) (*pbShared.Guild, error) {
-	g, err := d.Discord.Guild(req.GuildID)
+	g, err := d.Discord.Session.Guild(req.GuildID)
 	return msgbuilder.Guild(g), err
 }
 
@@ -137,7 +137,7 @@ func (d *DiscordService) UpdateMemberRoles(ctx context.Context, tx *pbDiscord.Ro
 }
 
 func (d *DiscordService) GetGuildRoles(ctx context.Context, req *pbShared.IDQuery) (*pbShared.GuildRoles, error) {
-	guild, err := d.Discord.Guild(req.GuildID)
+	guild, err := d.Discord.Session.Guild(req.GuildID)
 	if err != nil {
 		return nil, err
 	}
