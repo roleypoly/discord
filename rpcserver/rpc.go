@@ -2,9 +2,6 @@ package rpcserver
 
 import (
 	"context"
-	"os"
-	"strconv"
-	"time"
 
 	"github.com/golang/protobuf/ptypes/empty"
 	lru "github.com/hnlq715/golang-lru"
@@ -27,23 +24,7 @@ type DiscordService struct {
 	memberCache *lru.ARCCache
 }
 
-func NewDiscordService(discordClient *discordgobot.DiscordClient) *DiscordService {
-	cacheTuningVar := os.Getenv("TUNING_MEMBER_CACHE_SIZE")
-	if cacheTuningVar == "" {
-		cacheTuningVar = "10000"
-	}
-
-	cacheTuning, err := strconv.Atoi(cacheTuningVar)
-	if err != nil {
-		klog.Warning("TUNING_MEMBER_CACHE_SIZE invalid, defauling to 10000")
-		cacheTuning = 10000
-	}
-
-	memberCache, err := lru.NewARCWithExpire(cacheTuning, 2*time.Minute)
-	if err != nil {
-		klog.Fatal("Could not make memberCache")
-	}
-
+func NewDiscordService(discordClient *discordgobot.DiscordClient, memberCache *lru.ARCCache) *DiscordService {
 	return &DiscordService{
 		Discord:     discordClient,
 		memberCache: memberCache,

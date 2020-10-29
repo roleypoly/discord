@@ -31,27 +31,27 @@ func (d *DiscordService) fetchMember(req *pbShared.IDQuery, invalidate bool) (*d
 		}
 	}
 
-	member, err := d.Discord.GuildMember(req.MemberID, req.GuildID)
-	if err != nil {
-		if err != discordgo.ErrStateNotFound && err.Error() != "not found" {
-			klog.Error("fetchMember (state) failed: ", req, " -- ", err)
-			return nil, err
-		}
-	}
+	// member, err := d.Discord.GuildMember(req.MemberID, req.GuildID)
+	// if err != nil {
+	// 	if err != discordgo.ErrStateNotFound && err.Error() != "not found" {
+	// 		klog.Error("fetchMember (state) failed: ", req, " -- ", err)
+	// 		return nil, err
+	// 	}
+	// }
 
-	if member == nil {
-		// if guild.MemberCount > 5000 {
-		member, err = d.Discord.Session.GuildMember(req.GuildID, req.MemberID)
-		if err != nil && err.Error() != `HTTP 404 Not Found, {"message": "Unknown Member", "code": 10007}` {
-			klog.Error("fetchMember (rest) failed: ", req, " -- ", err.Error())
-		}
-		// }
-
-		if member == nil {
-			d.memberCache.Add(key, nil)
-			return nil, nil
-		}
+	// if member == nil {
+	// if guild.MemberCount > 5000 {
+	member, err := d.Discord.Session.GuildMember(req.GuildID, req.MemberID)
+	if err != nil && err.Error() != `HTTP 404 Not Found, {"message": "Unknown Member", "code": 10007}` {
+		klog.Error("fetchMember (rest) failed: ", req, " -- ", err.Error())
 	}
+	// }
+
+	// if member == nil {
+	// 	d.memberCache.Add(key, nil)
+	// 	return nil, nil
+	// }
+	// }
 
 	// This isn't set in every case, so let's make sure we do.
 	member.GuildID = req.GuildID

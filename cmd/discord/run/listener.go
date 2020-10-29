@@ -12,6 +12,7 @@ import (
 // Listener is a message processor built on top of the discord client.
 type Listener struct {
 	Bot          *discordgobot.DiscordClient
+	YeetCache    func()
 	selfMention  *regexp.Regexp
 	readOnly     bool
 	RootUsers    []string

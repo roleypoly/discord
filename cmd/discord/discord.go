@@ -5,6 +5,7 @@ import (
 	"net"
 	"os"
 	"os/signal"
+	"strconv"
 	"strings"
 	"syscall"
 	"time"
@@ -12,6 +13,7 @@ import (
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
 	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
+	lru "github.com/hnlq715/golang-lru"
 	"github.com/improbable-eng/grpc-web/go/grpcweb"
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/lampjaw/discordclient"
@@ -53,10 +55,14 @@ func main() {
 
 	defer awaitExit()
 
+	memberCache, err := makeCache()
+	if err != nil {
+		klog.Fatal(err)
+	}
 	bot := setupBot()
-	go startListener(bot)
+	go startListener(bot, memberCache)
 
-	go startGripkit(bot)
+	go startGripkit(bot, memberCache)
 }
 
 func setupBot() *discordclient.DiscordClient {
@@ -79,9 +85,9 @@ func sharedSecretAuth(ctx context.Context) (context.Context, error) {
 	return ctx, nil
 }
 
-func startGripkit(bot *discordclient.DiscordClient) {
+func startGripkit(bot *discordclient.DiscordClient, cache *lru.ARCCache) {
 	time.Sleep(2 * time.Second)
-	grpcDiscord := rpcserver.NewDiscordService(bot)
+	grpcDiscord := rpcserver.NewDiscordService(bot, cache)
 
 	host, port, _ := net.SplitHostPort(os.Getenv("DISCORD_SVC_PORT"))
 	healthzPort := host + ":1" + port
@@ -122,11 +128,12 @@ func startGripkit(bot *discordclient.DiscordClient) {
 	}
 }
 
-func startListener(bot *discordclient.DiscordClient) {
+func startListener(bot *discordclient.DiscordClient, cache *lru.ARCCache) {
 	listener := &run.Listener{
 		Bot:          bot,
 		RootUsers:    strings.Split(os.Getenv("ROOT_USERS"), ","),
 		BotWhitelist: strings.Split(os.Getenv("BOT_WHITELIST"), ","),
+		YeetCache:    func() { cache.Purge() },
 	}
 
 	listener.Run()
@@ -142,4 +149,24 @@ func awaitExit() {
 		os.Kill,
 	)
 	<-syscallExit
+}
+
+func makeCache() (*lru.ARCCache, error) {
+	cacheTuningVar := os.Getenv("TUNING_MEMBER_CACHE_SIZE")
+	if cacheTuningVar == "" {
+		cacheTuningVar = "10000"
+	}
+
+	cacheTuning, err := strconv.Atoi(cacheTuningVar)
+	if err != nil {
+		klog.Warning("TUNING_MEMBER_CACHE_SIZE invalid, defauling to 10000")
+		cacheTuning = 10000
+	}
+
+	memberCache, err := lru.NewARCWithExpire(cacheTuning, 2*time.Minute)
+	if err != nil {
+		klog.Fatal("Could not make memberCache")
+	}
+
+	return memberCache, err
 }

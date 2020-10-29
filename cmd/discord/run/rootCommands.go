@@ -23,6 +23,10 @@ var rootCommands []Command = []Command{
 		Match: regexp.MustCompile("shard of [0-9]+$"),
 		Fn:    rootGetShard,
 	},
+	{
+		Match: regexp.MustCompile("yeet cache$"),
+		Fn:    rootYeetCache,
+	},
 }
 
 func (l *Listener) handleRoot(message discordclient.Message) bool {
@@ -88,4 +92,10 @@ func rootGetShard(l *Listener, message discordclient.Message) string {
 	}
 
 	return "Shard not found."
+}
+
+func rootYeetCache(l *Listener, message discordclient.Message) string {
+	l.YeetCache()
+
+	return "It's been yoted on..."
 }
