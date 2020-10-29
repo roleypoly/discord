@@ -4,9 +4,10 @@ import (
 	"context"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/golang/protobuf/ptypes/empty"
-	lru "github.com/hashicorp/golang-lru"
+	lru "github.com/hnlq715/golang-lru"
 	discordgobot "github.com/lampjaw/discordclient"
 	"github.com/roleypoly/discord/internal/utils"
 	"github.com/roleypoly/discord/msgbuilder"
@@ -38,7 +39,7 @@ func NewDiscordService(discordClient *discordgobot.DiscordClient) *DiscordServic
 		cacheTuning = 10000
 	}
 
-	memberCache, err := lru.NewARC(cacheTuning)
+	memberCache, err := lru.NewARCWithExpire(cacheTuning, 2*time.Minute)
 	if err != nil {
 		klog.Fatal("Could not make memberCache")
 	}
